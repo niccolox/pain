@@ -76,6 +76,7 @@ defmodule PainWeb do
 
       # Include general helpers for rendering HTML
       unquote(html_helpers())
+      import Surface
     end
   end
 
@@ -109,5 +110,14 @@ defmodule PainWeb do
   """
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
+  end
+
+  def surface_live_view do
+    quote do
+      use Surface.LiveView,
+        layout: {PainWeb.Layouts, :app}
+
+      unquote(html_helpers())
+    end
   end
 end

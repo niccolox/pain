@@ -1,6 +1,8 @@
 defmodule PainWeb.Router do
   use PainWeb, :router
 
+  import Surface.Catalogue.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -18,6 +20,7 @@ defmodule PainWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/demo", Demo
   end
 
   # Other scopes may use custom stacks.
@@ -39,6 +42,13 @@ defmodule PainWeb.Router do
 
       live_dashboard "/dashboard", metrics: PainWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  if Mix.env() == :dev do
+    scope "/" do
+      pipe_through :browser
+      surface_catalogue "/catalogue"
     end
   end
 end

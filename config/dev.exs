@@ -26,7 +26,8 @@ config :pain, PainWeb.Endpoint,
   secret_key_base: "Qc5UoPv4JXrn5egLUlIKrnpKh0p2j5QRXrwGlwFmWNgaAorPBWL4z3nJUBJtf7mf",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    esbuild: {Esbuild, :install_and_run, [:catalogue, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support
@@ -54,11 +55,13 @@ config :pain, PainWeb.Endpoint,
 
 # Watch static and templates for browser reloading.
 config :pain, PainWeb.Endpoint,
+  reloadable_compilers: [:gettext, :elixir, :app, :surface],
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/pain_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/pain_web/(controllers|live|components)/.*(ex|heex|sface|js)$",
+      ~r"priv/catalogue/.*(ex)$"
     ]
   ]
 
