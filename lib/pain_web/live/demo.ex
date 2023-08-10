@@ -34,7 +34,7 @@ defmodule PainWeb.Demo do
             Please choose a category:
           </p>
           <div class="collapse collapse-arrow join-item border-neutral">
-            <input type="radio" name="my-accordion-1" checked />
+            <input type="radio" name="my-accordion-1" />
             <div class="collapse-title text-xl font-medium">
               Body and Foot Massage
             </div>
