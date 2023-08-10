@@ -1,7 +1,7 @@
 defmodule PainWeb.Demo do
   use PainWeb, :surface_live_view
 
-  alias PainWeb.Components.Card
+  alias SurfaceBulma.Card
 
   def render(assigns) do
     ~F"""
@@ -12,7 +12,7 @@ defmodule PainWeb.Demo do
     </style>
 
     <div class="flex justify-center mt-12">
-      <Card max_width="lg" rounded>
+      <Card>
         <:header>
           Surface UI
         </:header>

@@ -1,33 +1,34 @@
 defmodule PainWeb.Order do
   use PainWeb, :surface_live_view
-  alias PainWeb.Components.Card
+
+  alias SurfaceBulma.Button
+  alias SurfaceBulma.Card
+  alias SurfaceBulma.Title
 
   def render(assigns) do
     ~F"""
-    <style>
-      .tag {
-        @apply bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2;
-      }
-    </style>
+    <Card>
+      <:header>
+      <Title size="3" class="">Schedule an appointment</Title>
+      </:header>
 
-    <div class="flex justify-center mt-12">
-      <Card max_width="lg" rounded>
-        <:header>
-          Place an order:
-        </:header>
+      <Button>asdf</Button>
+      <Button>asdf</Button>
+      <Button>asdf</Button>
 
+      <p>
         Start building rich interactive user-interfaces, writing minimal custom Javascript.
         Built on top of Phoenix LiveView, <strong>Surface</strong> leverages the amazing
         <strong>Phoenix Framework</strong> to provide a fast and productive solution to
         build modern web applications.
+      </p>
 
-        <:footer>
-          <span class="tag">#surface</span>
-          <span class="tag">#phoenix</span>
-          <span class="tag">#tailwindcss</span>
-        </:footer>
-      </Card>
-    </div>
+      <:footer>
+        <span class="tag">#surface</span>
+        <span class="tag">#phoenix</span>
+        <span class="tag">#tailwindcss</span>
+      </:footer>
+    </Card>
     """
   end
 end

@@ -26,7 +26,6 @@ config :pain, PainWeb.Endpoint,
   secret_key_base: "Qc5UoPv4JXrn5egLUlIKrnpKh0p2j5QRXrwGlwFmWNgaAorPBWL4z3nJUBJtf7mf",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
     esbuild: {Esbuild, :install_and_run, [:catalogue, ~w(--sourcemap=inline --watch)]}
   ]
 

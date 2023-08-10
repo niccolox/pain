@@ -1,6 +1,6 @@
 defmodule PainWeb.Components.CardPlayground do
   use Surface.Catalogue.Playground,
-    subject: PainWeb.Components.Card,
+    subject: SurfaceBulma.Card,
     height: "360px",
     body: [style: "padding: 1.5rem;"]
 

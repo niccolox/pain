@@ -51,10 +51,12 @@ defmodule Pain.MixProject do
       {:surface, "~> 0.10.0"},
       {:surface_bulma, github: "surface-ui/surface_bulma"},
       {:swoosh, "~> 1.3"},
-      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:surface_catalogue, "~> 0.6.0"}
+      {:surface_catalogue, "~> 0.6.0"},
+
+      # {:petal_components, "~> 1.2.0"},
+      # {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
     ]
   end
 
@@ -70,9 +72,9 @@ defmodule Pain.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.build": ["esbuild default"],
+      "assets.deploy": ["esbuild default --minify", "phx.digest"]
     ]
   end
 

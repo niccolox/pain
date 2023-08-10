@@ -1,8 +1,2 @@
-/* Import scoped CSS rules for components */
+@import "./bulma.min.css";
 @import "./_components.css";
-
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
-/* This file is for your main application CSS */
