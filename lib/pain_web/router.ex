@@ -21,6 +21,7 @@ defmodule PainWeb.Router do
 
     get "/", PageController, :home
     live "/demo", Demo
+    live "/order", Order
   end
 
   # Other scopes may use custom stacks.
