@@ -58,10 +58,10 @@ config :pain, PainWeb.Endpoint,
   reloadable_compilers: [:gettext, :elixir, :app, :surface],
   live_reload: [
     patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*(po)$",
       ~r"lib/pain_web/(controllers|live|components)/.*(ex|heex|sface|js)$",
-      ~r"priv/catalogue/.*(ex)$"
+      ~r"priv/catalogue/.*(ex)$",
+      ~r"priv/gettext/.*(po)$",
+      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
     ]
   ]
 

@@ -1,0 +1,9 @@
+{
+  "name": "pain",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "daisyui": "^3.5.1"
+  }
+}

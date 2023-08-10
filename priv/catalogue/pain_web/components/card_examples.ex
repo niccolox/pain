@@ -40,12 +40,6 @@ defmodule PainWeb.Components.CardExamples do
   @doc "An example of a card with footer."
   def card_with_footer_example(assigns) do
     ~F"""
-    <style>
-      .tag {
-        @apply bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2;
-      }
-    </style>
-
     <Card>
       <:header>
         The header
@@ -58,9 +52,9 @@ defmodule PainWeb.Components.CardExamples do
       solution to build modern web applications.
 
       <:footer>
-        <span class="tag">#surface</span>
-        <span class="tag">#phoenix</span>
-        <span class="tag">#tailwindcss</span>
+        <span>#surface</span>
+        <span>#phoenix</span>
+        <span>#tailwindcss</span>
       </:footer>
     </Card>
     """

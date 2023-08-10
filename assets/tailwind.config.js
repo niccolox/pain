@@ -13,20 +13,20 @@ module.exports = {
     "../lib/*_web/**/*.sface",
     "../priv/catalogue/**/*.{ex,sface}"
   ],
-  theme: {
-    extend: {
-      colors: {
-        brand: "#FD4F00",
-      }
-    },
+  daisyui: {
+    logs: false,
+    themes: [ "light", "dark", "emerald" ],
   },
+  theme: { extend: { colors: {
+    brand: "#117864",
+    primary: "#117864",
+  } } },
   plugins: [
-    require("@tailwindcss/forms"),
+    require("daisyui"),
+
     // Allows prefixing tailwind classes with LiveView classes to add rules
     // only when LiveView classes are applied, for example:
-    //
     //     <div class="phx-click-loading:animate-ping">
-    //
     plugin(({addVariant}) => addVariant("phx-no-feedback", [".phx-no-feedback&", ".phx-no-feedback &"])),
     plugin(({addVariant}) => addVariant("phx-click-loading", [".phx-click-loading&", ".phx-click-loading &"])),
     plugin(({addVariant}) => addVariant("phx-submit-loading", [".phx-submit-loading&", ".phx-submit-loading &"])),
@@ -34,7 +34,6 @@ module.exports = {
 
     // Embeds Heroicons (https://heroicons.com) into your app.css bundle
     // See your `CoreComponents.icon/1` for more information.
-    //
     plugin(function({matchComponents, theme}) {
       let iconsDir = path.join(__dirname, "./vendor/heroicons/optimized")
       let values = {}
