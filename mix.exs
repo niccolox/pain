@@ -53,7 +53,8 @@ defmodule Pain.MixProject do
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:surface_catalogue, "~> 0.6.0"}
+      {:surface_catalogue, "~> 0.6.0"},
+      {:yaml_elixir, "~> 2.9"},
     ]
   end
 

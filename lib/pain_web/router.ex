@@ -20,7 +20,7 @@ defmodule PainWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    live "/demo", Demo
+    live "/book", BookLive
   end
 
   # Other scopes may use custom stacks.
