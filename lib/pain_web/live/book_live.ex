@@ -2,20 +2,45 @@ defmodule PainWeb.BookLive do
   use Surface.LiveView
   alias PainWeb.Components.Card
   alias PainWeb.Components.Class
+  alias PainWeb.Components.Accion
 
   data number, :integer, default: 1
+  data chosen, :any, default: ""
 
   def handle_event("number", params, socket) do
     {:noreply, assign(socket, :number, String.to_integer params["num"])}
   end
 
-  def render(assigns) do
-    {:ok, services } = (
+  def handle_event("choose", params, socket) do
+    {:noreply, assign(socket, :chosen, params["shape"])}
+  end
+
+  def services do
+    {:ok, s} = (
       :pain
       |> Application.app_dir("priv")
       |> Path.join("services.yml")
       |> YamlElixir.read_from_file
-    )
+    ); s
+  end
+
+  def chosen_services(assigns) do
+    services()["classes"]
+    |> Enum.map(fn class ->
+      Enum.map(class["services"], &(
+        if &1["hanyu"], do: &1, else: Map.put(&1, "hanyu", class["hanyu"])
+      )) |> Enum.filter(
+        &(&1["name"] == assigns[:chosen])
+      )
+    end)
+    |> List.flatten
+  end
+
+  def render(assigns) do
+    chosen_service = case chosen_services(assigns) do
+      [s|_] -> s
+      _ -> nil
+    end
 
     ~F"""
     <style>
@@ -23,9 +48,13 @@ defmodule PainWeb.BookLive do
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
+      .order {
+        display: flex;
+        flex-direction: column;
+      }
     </style>
 
-    <div class="flex justify-center mt-12">
+    <div class="order">
       <Card max_width="lg" rounded>
         <:header>
           Book an appointment
@@ -33,6 +62,7 @@ defmodule PainWeb.BookLive do
 
         <section id="number-people">
           <p>How many people are you booking for?</p>
+
           <div class="join">
             <button class={["btn", "join-item", "btn-active": @number == 1]}
               phx-value-num={1} :on-click="number" >Only me</button>
@@ -45,12 +75,27 @@ defmodule PainWeb.BookLive do
           </div>
         </section>
 
-        <section class="join join-vertical">
-          <p>Please choose a category:</p>
-          {#for class <- services["classes"]}
-            <Class class={class} id={class["name"]} />
-          {#else}<p>Seems like an error has occurred.</p>{/for}
-        </section>
+        {#if !chosen_service}
+          <section class="join join-vertical">
+            <p>Please choose a category:</p>
+
+            {#for class <- services()["classes"]}
+              <Class class={class} id={class["name"]} choose="choose" {=@chosen} />
+            {#else}<p>Seems like an error has occurred.</p>{/for}
+          </section>
+        {#else}
+          <section>
+            <p>You chose:</p>
+
+            <Accion accion="Change" click="choose" shape="">
+              <h2>
+                {chosen_service["name"]}
+                {#if chosen_service["hanyu"]} / {chosen_service["hanyu"]}{/if}
+              </h2>
+              {chosen_service["duracion"]}
+            </Accion>
+          </section>
+        {/if}
       </Card>
     </div>
     """

@@ -3,6 +3,8 @@ defmodule PainWeb.Components.Class do
   alias PainWeb.Components.Service
 
   prop class, :any, required: true
+  prop choose, :event
+  prop chosen, :string
 
   def render(assigns) do
     ~F"""
@@ -22,7 +24,7 @@ defmodule PainWeb.Components.Class do
         <p>{@class["descripcion"]}</p>
 
         {#for service <- @class["services"]}
-          <Service id={service["name"]} service={service} />
+          <Service id={service["name"]} {=service} {=@chosen} {=@choose} />
         {#else}<p>Seems like an error has occurred.</p>{/for}
       </div>
     </div>

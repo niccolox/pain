@@ -1,7 +1,9 @@
 defmodule PainWeb.Components.Service do
   use Surface.LiveComponent
+  alias PainWeb.Components.Accion
 
   prop service, :any, required: true
+  prop choose, :event
   prop chosen, :boolean, default: false
 
   def render(assigns) do
@@ -19,12 +21,12 @@ defmodule PainWeb.Components.Service do
     </style>
 
     <div>
-      <div class="header">
+      <Accion accion="Book" click={@choose} shape={@service["name"]}>
         <h4>{@service["name"]}</h4>
         {#if @service["hanyu"]}<h4>{@service["hanyu"]}</h4>{/if}
         <span>{@service["duracion"]}</span>
-        <button class={["btn", "btn-active": @chosen]}>Book</button>
-      </div>
+      </Accion>
+
       <p>{@service["descripcion"]}</p>
     </div>
     """
