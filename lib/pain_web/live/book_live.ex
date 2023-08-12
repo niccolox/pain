@@ -2,6 +2,12 @@ defmodule PainWeb.BookLive do
   use Surface.LiveView
   alias PainWeb.Components.Card
 
+  data number, :integer, default: 1
+
+  def handle_event("number", params, socket) do
+    {:noreply, assign(socket, :number, String.to_integer params["num"])}
+  end
+
   def render(assigns) do
     {:ok, services } = (
       :pain
@@ -28,10 +34,14 @@ defmodule PainWeb.BookLive do
         <section id="number-people">
           <p>How many people are you booking for?</p>
           <div class="join">
-            <button class="btn join-item">Only me</button>
-            <button class="btn join-item">+1</button>
-            <button class="btn join-item">+2</button>
-            <button class="btn join-item">+3</button>
+            <button class={["btn", "join-item", (@number == 1) && "btn-active"]}
+              phx-value-num={1} :on-click="number" >Only me</button>
+            <button class={["btn", "join-item", (@number == 2) && "btn-active"]}
+              phx-value-num={2} :on-click="number" >+1</button>
+            <button class={["btn", "join-item", (@number == 3) && "btn-active"]}
+              phx-value-num={3} :on-click="number" >+2</button>
+            <button class={["btn", "join-item", (@number == 4) && "btn-active"]}
+              phx-value-num={4} :on-click="number" >+3</button>
           </div>
         </section>
 
