@@ -15,6 +15,7 @@ defmodule PainWeb.Components.Class do
       <input type="radio" name="my-accordion-1" />
       <div class="collapse-title text-xl font-medium">
         <h3>{@class["name"]}</h3>
+        {#if @class["hanyu"]}<h3>{@class["hanyu"]}</h3>{/if}
       </div>
 
       <div class="collapse-content">

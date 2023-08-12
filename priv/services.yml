@@ -1,54 +1,102 @@
 classes:
   - name: Body and Foot Massage
+    hanyu: 按摩
     descripcion: |
-      We offer a wide range of massage options to help clients achieve optimal health and wellness. Our experienced therapists are trained in a variety of techniques such as Tui-Na, Swedish massage, deep tissue massage, sports massage, and prenatal massage. Complementary hot stones upon request.
-      Our therapists will work with you to create a personalized treatment plan that addresses your specific goals and needs.
+      We offer a wide range of massage options
+      to help clients achieve optimal health and wellness.
+      Our experienced therapists are trained in a variety of techniques
+      such as Tui-Na, Swedish massage, deep tissue massage, sports massage, and prenatal massage.
+      Complementary hot stones upon request.
+      Our therapists will work with you to create a personalized treatment plan
+      that addresses your specific goals and needs.
     services:
-      - name: 30Min Massage 按摩
+      - name: 30Min Massage
         duracion: 30 minutes @ $50.00
-      - name: 60min Massage 按摩
+      - name: 60min Massage
         duracion: 1 hour @ $80.00
-      - name: 90min Massage 按摩
+      - name: 90min Massage
         duracion: 1 hour 30 minutes @ $120.00
-      - name: 2hrs Massage 按摩
+      - name: 2hrs Massage
         duracion: 2 hours @ $160.00
   - name: Reflexology with Chinese Medicine
+    hanyu: 脚部按摩
     descripcion: |
-      This technique involves the application of Chinese Medicine and physical pressure to sprecific pressure point areas located on the feet or the hands. These pressure points are believed to correspond to various organs and systems of the body. It is used in order to bring relaxation and healing to the corresponding areas of the body as well as assist with stress relief.
+      This technique involves the application of Chinese Medicine and physical pressure
+      to sprecific pressure point areas located on the feet or the hands.
+      These pressure points are believed to correspond
+      to various organs and systems of the body.
+      It is used in order to bring relaxation and healing
+      to the corresponding areas of the body
+      as well as assist with stress relief.
     services:
-      - name: 30Min Reflexology w. Chinese Medicine 脚部按摩
+      - name: 30Min Reflexology w. Chinese Medicine
         duracion: 30 minutes @ $50.00
-      - name: 60Min Reflexology with Chinese Medicine 脚部按摩
+      - name: 60Min Reflexology with Chinese Medicine
         duracion: 1 hour @ $80.00
-      - name: 90Min Reflexology with Chinese Medicine 脚部按摩
+      - name: 90Min Reflexology with Chinese Medicine
         duracion: 1 hour 30 minutes @ $120.00
   - name: Cupping
+    hanyu: 拔罐
     descripcion: |
-      Cupping is a traditional Chinese therapy involving using suction cups to create a vacuum on the skin. This suction helps to stimulate circulation, loosen tight muscles, and improve overall well-being. Cupping can be used to address a variety of conditions, including muscle soreness, stiffness, and inflammation. Our therapists are trained in the proper technique and use of cupping to ensure that you receive the best possible care.
+      Cupping is a traditional Chinese therapy involving using suction cups
+      to create a vacuum on the skin.
+      This suction helps to stimulate circulation,
+      loosen tight muscles, and improve overall well-being.
+      Cupping can be used to address a variety of conditions,
+      including muscle soreness, stiffness, and inflammation.
+      Our therapists are trained in the proper technique and use of cupping
+      to ensure that you receive the best possible care.
     services:
-      - name: Cupping 拔罐
+      - name: Cupping
+        hanyu: 拔罐
         duracion: 20 minutes @ $40.00
-      - name: Moving Cupping 走罐
+      - name: Moving Cupping
+        hanyu: 走罐
         duracion: 30 minutes @ $60.00
         descripcion: |
           Moving cupping is a type of cupping therapy that involves the use of small cups that are moved over the skin to create suction and improve circulation. This technique is believed to help improve muscle function and reduce pain and stiffness.
-      - name: Wet Cupping 刺血拔罐
+      - name: Wet Cupping
+        hanyu: 刺血拔罐
         duracion: 10 minutes @ $45.00
         descripcion: |
-          This technique is similar to the “cupping” method, however, with this technique, your skin s punctured slightly, and blood is drawn out during the suction process. This is thus used to improve both lymphatic and blood circulation and relieve pain.
+          This technique is similar to the “cupping” method,
+          however with this technique your skin is punctured slightly,
+          and blood is drawn out during the suction process.
+          This is thus used to improve both lymphatic and blood circulation
+          and relieve pain.
           NOTE: this only is applied on a single point.
   - name: Other Traditional Medical Therapies
     services:
-      - name: Moxibustion 艾灸
+      - name: Moxibustion
+        hanyu: 艾灸
         duracion: 30 minutes @ $60.00
         descripcion: |
-          Moxibustion is a traditional Chinese medicine technique that involves the use of heat to stimulate acupuncture points in the body. It is believed to improve circulation, boost the immune system, and reduce pain and inflammation. At Pain Away of Philly, our therapists are trained in the proper use of moxibustion and will work with you to determine if it is a suitable treatment option for your needs.
-      - name: Gua Sha 刮痧
+          Moxibustion is a traditional Chinese medicine technique
+          that involves the use of heat to stimulate acupuncture points in the body.
+          It is believed to improve circulation, boost the immune system,
+          and reduce pain and inflammation.
+          At Pain Away of Philly, our therapists are trained
+          in the proper use of moxibustion and will work with you
+          to determine if it is a suitable treatment option for your needs.
+      - name: Gua Sha
+        hanyu: 刮痧
         duracion: 30 minutes @ $60.00
         descripcion: |
-          Gua sha massage is a technique that involves scraping the skin with a special massage tool to improve circulation and reduce inflammation. This process, also known as coining, spooning, or scraping, involves the application of oil to the skin followed by the use of the gua sha tool to massage the affected area. In addition to promoting healing and improving circulation, gua sha massage is believed to address stagnant energy in the body and provide overall health benefits.
-      - name: Thermo-Theraphy 中药热敷
+          Gua sha massage is a technique that involves scraping the skin
+          with a special massage tool to improve circulation and reduce inflammation.
+          This process, also known as coining, spooning, or scraping,
+          involves the application of oil to the skin
+          followed by the use of the gua sha tool to massage the affected area.
+          In addition to promoting healing and improving circulation,
+          gua sha massage is believed to address stagnant energy in the body
+          and provide overall health benefits.
+      - name: Thermo-Theraphy
+        hanyu: 中药热敷
         duracion: 45 minutes @ $35.00
         descripcion: |
-          Chinese medicine is applied to the acupuncture points on the body surface and then heated. The combination of Chinese medicine and hot compresses allows the medicine to be locally absorbed through the skin, reaching lesions and making the treatment more direct and effective.
+          Chinese medicine is applied
+          to the acupuncture points on the body surface and then heated.
+          The combination of Chinese medicine and hot compresses
+          allows the medicine to be locally absorbed through the skin,
+          reaching lesions and making the treatment more direct and effective.
           NOTE: This booking is per body part (ei. lower back, upper back etc)
