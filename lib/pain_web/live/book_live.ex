@@ -50,7 +50,10 @@ defmodule PainWeb.BookLive do
       #number-people .join { align-self: center; }
       .order {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
+        position: absolute;
+        top: 4rem;
+        width: 100vw;
       }
     </style>
 
