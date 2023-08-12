@@ -60,9 +60,9 @@ defmodule PainWeb.BookLive do
           Book an appointment
         </:header>
 
-        <section id="number-people">
-          <p>How many people are you booking for?</p>
+        <p>How many people are you booking for?</p>
 
+        <section id="number-people">
           <div class="join">
             <button class={["btn", "join-item", "btn-active": @number == 1]}
               phx-value-num={1} :on-click="number" >Only me</button>
@@ -76,17 +76,17 @@ defmodule PainWeb.BookLive do
         </section>
 
         {#if !chosen_service}
-          <section class="join join-vertical">
-            <p>Please choose a category:</p>
+          <p>Please choose a category:</p>
 
+          <section class="join join-vertical">
             {#for class <- services()["classes"]}
               <Class class={class} id={class["name"]} choose="choose" {=@chosen} />
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
         {#else}
-          <section>
-            <p>You chose:</p>
+          <p>You chose:</p>
 
+          <section>
             <Accion accion="Change" click="choose" shape="">
               <h2>
                 {chosen_service["name"]}
