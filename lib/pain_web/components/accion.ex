@@ -4,6 +4,7 @@ defmodule PainWeb.Components.Accion do
   prop accion, :string
   prop click, :event
   prop shape, :string
+  prop clicked, :boolean, default: false
 
   slot default
 
@@ -26,7 +27,7 @@ defmodule PainWeb.Components.Accion do
         <#slot/>
       </div>
 
-      <button class="btn" :on-click={@click} phx-value-shape={@shape}>
+      <button class={"btn", "btn-active": @clicked} :on-click={@click} phx-value-shape={@shape}>
         {@accion}
       </button>
     </div>
