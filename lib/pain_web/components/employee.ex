@@ -6,25 +6,24 @@ defmodule PainWeb.Components.Employee do
   prop employ, :event, required: true
   prop employed, :boolean, default: false
   prop choices, :map, default: %{}
+  prop number, :integer, default: 1
+
 
   def render(assigns) do
     ~F"""
     <style>
-      section {
-        margin: 2rem 0 2rem;
-        display: grid;
-        grid-template-columns: 12rem auto;
-        grid-template-rows: auto auto;
-        grid-gap: 1rem;
+      img { max-width: 40%; margin-right: 1rem; }
+      @media (max-width: 1080px) {
+        img { float: left; }
       }
-      section { grid-column: 2; }
-      section img { grid-column: 1; grid-row: 1 / -1; }
     </style>
 
     <Choices {=@number} {=@choices} accion={@employ} name={@employee["name"]}>
-      <img src={@employee["image"]} />
       <h2>{@employee["name"]}</h2>
-      <p>{@employee["biography"]}</p>
+      <:summary>
+        <img src={@employee["image"]} />
+        <p>{@employee["biography"]}</p>
+      </:summary>
     </Choices>
     """
   end
