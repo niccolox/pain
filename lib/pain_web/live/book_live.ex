@@ -6,10 +6,11 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Class
   alias PainWeb.Components.Employee
   alias PainWeb.Components.Accion
+  alias PainWeb.Components.Choices
 
-  data number, :integer, default: 1
-  data chosen, :any, default: ""
-  data employed, :list, default: []
+  data number, :integer, default: 2
+  data chosen, :any, default: "Cupping"
+  data employed, :map, default: %{}
 
   def handle_event("number", params, socket) do
     {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -20,9 +21,10 @@ defmodule PainWeb.BookLive do
   end
 
   def handle_event("employ", params, socket) do
-    {:noreply, update(socket, :employed, &(&1 ++ [params["shape"]]))}
+    {:noreply, update(socket, :employed,
+      &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
   end
-  def handle_event("unemploy", _, socket), do: {:noreply, assign(socket, :employed, [])}
+  def handle_event("clear_employees", _, socket), do: {:noreply, assign(socket, :employed, %{})}
 
   def services do
     {:ok, s} = (
@@ -61,8 +63,7 @@ defmodule PainWeb.BookLive do
     end
 
     employees_chosen = (
-      if Enum.member?(assigns[:employed], "_random"), do: true,
-      else: length(assigns[:employed]) == assigns[:number]
+      length(Map.keys(assigns[:employed])) == assigns[:number]
     )
 
     ~F"""
@@ -127,19 +128,28 @@ defmodule PainWeb.BookLive do
 
           <hr/>
           {#if !employees_chosen}
-            <Accion accion="Assign randomly" click="employ" shape="_random">
-              <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>
-            </Accion>
+            <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>
+
+            <Choices {=@number} choices={@employed} accion="employ" name="_any"
+            >No preference</Choices>
+            <Choices {=@number} choices={@employed} accion="employ" name="_male"
+            >Any male</Choices>
+            <Choices {=@number} choices={@employed} accion="employ" name="_female"
+            >Any female</Choices>
 
             {#for employee <- employees()}
-              <Employee {=employee} id={employee["name"]} employ="employ"
-                employed={Enum.member?(@employed, employee["name"])} />
+              <Employee {=employee} id={employee["name"]} employ="employ" choices={@employed} {=@number} />
             {#else}<p>Seems like an error has occurred.</p>{/for}
           {#else}
-            <Accion accion="Change" click="unemploy" shape="">
-              <p>Your {ngettext("therapist is", "therapists are", @number)}:</p>
-              <ul>{#for employee <- @employed}
-                <li>{if employee == "_random", do: "Randomly assigned", else: employee}</li>
+            <Accion accion="Change" click="clear_employees" shape="">
+              <p>Your therapist {ngettext("choice is", "choices are", @number)}:</p>
+              <ul>{#for employee <- Map.values(@employed)}
+                <li>{#case employee}
+                {#match "_any"}No preference
+                {#match "_male"}Any male
+                {#match "_female"}Any female
+                {#match name}{name}
+                {/case}</li>
               {/for}</ul>
             </Accion>
           {/if}

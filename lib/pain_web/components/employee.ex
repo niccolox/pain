@@ -1,10 +1,11 @@
 defmodule PainWeb.Components.Employee do
   use Surface.LiveComponent
-  alias PainWeb.Components.Accion
+  alias PainWeb.Components.Choices
 
   prop employee, :any, required: true
   prop employ, :event, required: true
   prop employed, :boolean, default: false
+  prop choices, :map, default: %{}
 
   def render(assigns) do
     ~F"""
@@ -16,19 +17,15 @@ defmodule PainWeb.Components.Employee do
         grid-template-rows: auto auto;
         grid-gap: 1rem;
       }
-      section > * { grid-column: 2; }
+      section { grid-column: 2; }
       section img { grid-column: 1; grid-row: 1 / -1; }
     </style>
 
-    <section>
+    <Choices {=@number} {=@choices} accion={@employ} name={@employee["name"]}>
       <img src={@employee["image"]} />
-      <Accion accion={if @employed, do: "Chosen", else: "Choose"}
-        click={@employ} shape={@employee["name"]} clicked={@employed}
-      >
-        <h2>{@employee["name"]}</h2>
-      </Accion>
+      <h2>{@employee["name"]}</h2>
       <p>{@employee["biography"]}</p>
-    </section>
+    </Choices>
     """
   end
 end
