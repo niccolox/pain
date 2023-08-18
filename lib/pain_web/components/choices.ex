@@ -14,7 +14,7 @@ defmodule PainWeb.Components.Choices do
     ~F"""
     <style>
       .choices {
-        margin: 0.5rem 0;
+        margin: 1rem 0;
         display: flex;
         flex-direction: column;
       }
@@ -22,7 +22,7 @@ defmodule PainWeb.Components.Choices do
         width: 100%;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: start;
       }
       .summary { padding-top: 0.5rem; }
       @media (max-width: 1080px) { .summary { display: block; } }

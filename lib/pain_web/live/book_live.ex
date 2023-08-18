@@ -8,25 +8,30 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Accion
   alias PainWeb.Components.Choices
 
-  data number, :integer, default: 2
-  data chosen, :any, default: "Cupping"
+  data number, :integer, default: 1
+  data services, :map, default: %{}
   data employed, :map, default: %{}
+  data class_open, :string, default: ""
 
-  def handle_event("number", params, socket) do
-    {:noreply, assign(socket, :number, String.to_integer params["num"])}
-  end
+  def handle_event("number", params, socket),
+    do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
 
-  def handle_event("choose", params, socket) do
-    {:noreply, assign(socket, :chosen, params["shape"])}
-  end
+  def handle_event("choose", params, socket),
+    do: {:noreply, update(socket, :services,
+    &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
+  def handle_event("clear_services", _, socket),
+    do: {:noreply, assign(socket, :services, %{})}
 
-  def handle_event("employ", params, socket) do
-    {:noreply, update(socket, :employed,
-      &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
-  end
-  def handle_event("clear_employees", _, socket), do: {:noreply, assign(socket, :employed, %{})}
+  def handle_event("employ", params, socket),
+    do: {:noreply, update(socket, :employed,
+    &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
+  def handle_event("clear_employees", _, socket),
+    do: {:noreply, assign(socket, :employed, %{})}
 
-  def services do
+  def handle_event("open_class", params, socket),
+    do: {:noreply, assign(socket, :class_open, params["name"])}
+
+  def all_services do
     {:ok, s} = (
       :pain
       |> Application.app_dir("priv")
@@ -45,27 +50,16 @@ defmodule PainWeb.BookLive do
   end
 
   def chosen_services(assigns) do
-    services()["classes"]
+    all_services()["classes"]
     |> Enum.map(fn class ->
-      Enum.map(class["services"], &(
-        if &1["hanyu"], do: &1, else: Map.put(&1, "hanyu", class["hanyu"])
-      )) |> Enum.filter(
-        &(&1["name"] == assigns[:chosen])
-      )
+      Enum.map(class["services"],
+        &(if &1["hanyu"], do: &1, else: Map.put(&1, "hanyu", class["hanyu"])))
+      |> Enum.filter(&(assigns[:services] |> Map.values() |> Enum.member?(&1["name"])))
     end)
     |> List.flatten
   end
 
   def render(assigns) do
-    chosen_service = case chosen_services(assigns) do
-      [s|_] -> s
-      _ -> nil
-    end
-
-    employees_chosen = (
-      length(Map.keys(assigns[:employed])) == assigns[:number]
-    )
-
     ~F"""
     <style>
       section { margin: 1rem 0 1rem; }
@@ -105,29 +99,31 @@ defmodule PainWeb.BookLive do
         </section>
 
         <hr/>
-        {#if !chosen_service}
+        {#if length(chosen_services(assigns)) < @number}
           <p>Please choose a category:</p>
 
           <section class="join join-vertical">
-            {#for class <- services()["classes"]}
-              <Class class={class} id={class["name"]} choose="choose" {=@chosen} />
+            {#for class <- all_services()["classes"]}
+            <Class {=class} id={class["name"]} choose="choose" chosen={@services} {=@number}
+              is_open={@class_open == class["name"]} open="open_class" />
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
         {#else}
           <p>You are booking:</p>
 
-          <section>
-            <Accion accion="Change" click="choose" shape="">
-              <h2>
-                {chosen_service["name"]}
-                {#if chosen_service["hanyu"]} / {chosen_service["hanyu"]}{/if}
-              </h2>
-              {chosen_service["duracion"]}
-            </Accion>
-          </section>
+          <Accion accion="Change" click="choose" shape="">
+            <ul>{#for service <- chosen_services(assigns)}
+              <li>
+                {service["name"]}
+                {#if service["hanyu"]} / {service["hanyu"]}{/if}
+                {service["duracion"]}
+              </li>
+            {/for}</ul>
+          </Accion>
 
           <hr/>
-          {#if !employees_chosen}
+
+          {#if length(Map.values(@employed)) < @number}
             <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>
 
             <Choices {=@number} choices={@employed} accion="employ" name="_any"
@@ -136,6 +132,8 @@ defmodule PainWeb.BookLive do
             >Any male</Choices>
             <Choices {=@number} choices={@employed} accion="employ" name="_female"
             >Any female</Choices>
+
+            <hr/>
 
             {#for employee <- employees()}
               <Employee {=employee} id={employee["name"]} employ="employ" choices={@employed} {=@number} />

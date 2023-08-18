@@ -4,10 +4,8 @@ defmodule PainWeb.Components.Employee do
 
   prop employee, :any, required: true
   prop employ, :event, required: true
-  prop employed, :boolean, default: false
   prop choices, :map, default: %{}
   prop number, :integer, default: 1
-
 
   def render(assigns) do
     ~F"""

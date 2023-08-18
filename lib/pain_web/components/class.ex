@@ -4,8 +4,12 @@ defmodule PainWeb.Components.Class do
 
   prop class, :any, required: true
   prop choose, :event
-  prop chosen, :string
+  prop chosen, :map
+  prop number, :integer
+  prop open, :event
+  prop is_open, :boolean, default: false
 
+  # <Class {=class} id={class["name"]} choose="choose" choices={@services} {=@number} />
   def render(assigns) do
     ~F"""
     <style>
@@ -13,7 +17,8 @@ defmodule PainWeb.Components.Class do
       p { margin-bottom: 1rem; }
     </style>
 
-    <div class="collapse collapse-arrow join-item border-neutral">
+    <div :on-click={@open} phx-value-name={@class["name"]}
+    class={"collapse", "collapse-arrow", "join-item", "border-neutral", "collapse-open": @is_open } >
       <input type="radio" name="my-accordion-1" />
       <div class="collapse-title text-xl font-medium">
         <h3>{@class["name"]}</h3>
@@ -24,7 +29,7 @@ defmodule PainWeb.Components.Class do
         <p>{@class["descripcion"]}</p>
 
         {#for service <- @class["services"]}
-          <Service id={service["name"]} {=service} {=@chosen} {=@choose} />
+          <Service id={service["name"]} {=service} {=@chosen} {=@choose} {=@number} />
         {#else}<p>Seems like an error has occurred.</p>{/for}
       </div>
     </div>
