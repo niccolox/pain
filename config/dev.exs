@@ -27,6 +27,7 @@ config :pain, PainWeb.Endpoint,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    tailwind: {Tailwind, :install_and_run, [:lib, ~w(--watch --minify)]},
     esbuild: {Esbuild, :install_and_run, [:catalogue, ~w(--sourcemap=inline --watch)]}
   ]
 
