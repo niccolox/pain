@@ -12,12 +12,16 @@ classes:
     services:
       - name: 30Min Massage
         duracion: 30 minutes @ $50.00
+        schedule_key: 39928472
       - name: 60min Massage
         duracion: 1 hour @ $80.00
+        schedule_key: 39923045
       - name: 90min Massage
         duracion: 1 hour 30 minutes @ $120.00
+        schedule_key: 39925969
       - name: 2hrs Massage
         duracion: 2 hours @ $160.00
+        schedule_key: 43792772
   - name: Reflexology with Chinese Medicine
     hanyu: 脚部按摩
     descripcion: |
@@ -31,10 +35,13 @@ classes:
     services:
       - name: 30Min Reflexology w. Chinese Medicine
         duracion: 30 minutes @ $50.00
+        schedule_key: 39928923
       - name: 60Min Reflexology with Chinese Medicine
         duracion: 1 hour @ $80.00
+        schedule_key: 39928967
       - name: 90Min Reflexology with Chinese Medicine
         duracion: 1 hour 30 minutes @ $120.00
+        schedule_key: 39929015
   - name: Cupping
     hanyu: 拔罐
     descripcion: |
@@ -50,26 +57,33 @@ classes:
       - name: Cupping
         hanyu: 拔罐
         duracion: 20 minutes @ $40.00
+        schedule_key: 39928578
       - name: Moving Cupping
         hanyu: 走罐
         duracion: 30 minutes @ $60.00
+        schedule_key: 39928780
         descripcion: |
-          Moving cupping is a type of cupping therapy that involves the use of small cups that are moved over the skin to create suction and improve circulation. This technique is believed to help improve muscle function and reduce pain and stiffness.
+          Moving cupping is a type of cupping therapy that involves the use of
+          small cups that are moved over the skin to create suction and improve
+          circulation. This technique is believed to help improve muscle
+          function and reduce pain and stiffness.
       - name: Wet Cupping
         hanyu: 刺血拔罐
         duracion: 10 minutes @ $45.00
+        schedule_key: 39931669
         descripcion: |
           This technique is similar to the “cupping” method,
           however with this technique your skin is punctured slightly,
           and blood is drawn out during the suction process.
           This is thus used to improve both lymphatic and blood circulation
           and relieve pain.
-          NOTE: this only is applied on a single point.
+          NOTE: this only is applied on a single accupuncture point.
   - name: Other Traditional Medical Therapies
     services:
       - name: Moxibustion
         hanyu: 艾灸
         duracion: 30 minutes @ $60.00
+        schedule_key: 39928656
         descripcion: |
           Moxibustion is a traditional Chinese medicine technique
           that involves the use of heat to stimulate acupuncture points in the body.
@@ -81,6 +95,7 @@ classes:
       - name: Gua Sha
         hanyu: 刮痧
         duracion: 30 minutes @ $60.00
+        schedule_key: 39928881
         descripcion: |
           Gua sha massage is a technique that involves scraping the skin
           with a special massage tool to improve circulation and reduce inflammation.
@@ -93,6 +108,7 @@ classes:
       - name: Thermo-Theraphy
         hanyu: 中药热敷
         duracion: 45 minutes @ $35.00
+        schedule_key: 39929598
         descripcion: |
           Chinese medicine is applied
           to the acupuncture points on the body surface and then heated.

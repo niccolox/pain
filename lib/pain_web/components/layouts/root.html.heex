@@ -7,7 +7,10 @@
     <.live_title suffix=" · Phoenix Framework">
       <%= assigns[:page_title] || "Pain" %>
     </.live_title>
+
+    <!-- no good; include as css modules. -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.5.1/dist/full.css" rel="stylesheet" type="text/css" />
+
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
