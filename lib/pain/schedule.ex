@@ -21,37 +21,35 @@ defmodule Pain.Schedule do
     end
   end
 
-  def bookable_months do
-    1..3
-    |> Enum.reduce([today()], fn _, months ->
-      prior = months |> Enum.reverse() |> hd()
-      months ++ [
-        prior
-        |> Date.add(31)
-        |> Date.beginning_of_month()
-      ]
-    end)
-    |> Enum.reduce([], fn beginning, months ->
-      months ++ [Date.range(beginning, Date.end_of_month(beginning)) ]
-    end)
+  def this_month do
+    Date.range(today(), today() |> Date.end_of_month)
+  end
+
+  def month(month) do
+    [y,m] = month |> String.split("-") |> Enum.map(&String.to_integer/1)
+    beginning = Date.new(y,m,1) |> elem(1) |> Date.beginning_of_month
+    Date.range(beginning, beginning |> Date.end_of_month)
   end
 
   @doc """
   days = Pain.Schedule.message |> Pain.Schedule.check_blocks(
     [ 39928578, 39928780, 39928578, ],
     [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
-    hd(Pain.Schedule.bookable_months())
+    this_month()
   )
   """
   def check_blocks headers, service_keys, employee_keys, range do
     keys = service_keys |> Enum.reduce(%{}, fn x, acc ->
       Map.update(acc, x, 1, &(&1 + 1)) end)
     (range |> Parallel.map(fn day ->
-      if day < today(), do: [], else:
       keys |> Parallel.map(fn { key, demand } ->
         employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
           HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode!
+          # case HTTPoison.get(search_hours, headers) do
+          #   {:ok, r} -> r |> Map.get(:body) |> Jason.decode!()
+          #   {:error, m} -> raise m
+          # end
         end)
         |> reduce_calendars
         |> Enum.filter(fn { _, num } -> num >= demand end)

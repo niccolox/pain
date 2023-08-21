@@ -10,7 +10,7 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Schedule
 
   data number, :integer, default: 1
-  data services, :map, default: %{}
+  data services, :map, default: %{ 1 => "Cupping" }
   data employed, :map, default: %{}
   data open_class, :string, default: ""
   data schedule, :string, default: nil
