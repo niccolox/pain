@@ -47,7 +47,8 @@ defmodule Pain.Schedule do
         |> reduce_calendars
         |> Enum.filter(fn { _, num } -> num >= demand end)
         |> Enum.map(fn { block, _ } -> block end)
-      end) |> reduce_blocks
+      end)
+      |> reduce_blocks
     end))
     |> Enum.filter(&(length(&1) > 0))
     |> Enum.reduce(%{}, fn day, all ->

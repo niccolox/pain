@@ -13,7 +13,8 @@ defmodule PainWeb.BookLive do
   data services, :map, default: %{}
   data employed, :map, default: %{}
   data open_class, :string, default: ""
-  data schedule, :string, default: nil
+  data schedule_day, :string, default: Pain.Schedule.today() |> Date.to_string
+  data schedule_block, :string, default: nil
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -33,8 +34,8 @@ defmodule PainWeb.BookLive do
   def handle_event("open_class", params, socket),
     do: {:noreply, assign(socket, :open_class, params["name"])}
 
-  def handle_event("schedule", _, socket),
-    do: {:noreply, assign(socket, :schedule, nil)}
+  def handle_event("schedule_day", params, socket),
+    do: {:noreply, assign(socket, :schedule_day, params["day"])}
 
   def classed_services do
     {:ok, s} = (
@@ -141,8 +142,9 @@ defmodule PainWeb.BookLive do
 
           <hr/>
 
-          {#if !@schedule}
-            <Schedule keys={service_keys(assigns)} done="schedule" />
+          {#if !@schedule_day || !@schedule_block}
+          <Schedule id="schedule" keys={service_keys(assigns)}
+            day={@schedule_day} block={@schedule_block} />
           {#else}
             {#if map_size(@employed) < @number}
               <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>

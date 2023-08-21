@@ -2,18 +2,16 @@ defmodule PainWeb.Components.Schedule do
   use Surface.Component
   import Pain.Schedule
 
-  data month, :string, default: "2023-08"
-  data day, :string, default: nil
-  data hour, :string, default: nil
-
+  prop day, :string, default: today() |> Date.to_string()
+  prop block, :string, default: nil
   prop keys, :list
   prop done, :event
 
-  def render(assigns) do
-    if !assigns[:day], do: render_days(assigns), else: render_hours(assigns)
+  def handle_event("day", params, socket) do
+    { :noreply, assign(socket, :day, params["value"]) }
   end
 
-  def render_days(assigns) do
+  def render(assigns) do
     ~F"""
     <style>
       input {
@@ -22,12 +20,17 @@ defmodule PainWeb.Components.Schedule do
         padding: 0.6rem;
         text-align: center;
       }
+      .schedule {
+        display: flex;
+        justify-content: space-around;
+      }
+      .schedule > * { margin: 0.6rem; }
     </style>
 
-    <section class="schedule">
-      Please schedule:
+    Please schedule:
 
-      <div>
+    <section class="schedule">
+      <div phx-update="ignore">
         <input type="text" id="calendar" :hook="Calendar"
           data-day={today()}
           data-possible={message() |> check_blocks(@keys,
@@ -36,13 +39,10 @@ defmodule PainWeb.Components.Schedule do
           ) |> Jason.encode! }
         />
       </div>
+      <div>
+        Please choose a block of time on {@day}.
+      </div>
     </section>
-    """
-  end
-
-  def render_hours(assigns) do
-    ~F"""
-    Choose a time:
     """
   end
 end
