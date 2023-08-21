@@ -9,8 +9,17 @@ defmodule Pain.Schedule do
     [ "Authorization": "Basic #{auth}", "Accept": "application/json" ]
   end
 
-  def now, do: DateTime.now("America/New_York") |> elem(1)
   def today, do: now() |> DateTime.to_date()
+  def now do
+    # On initial app load, tzdata needs to pull time zones,
+    # meaning the only time zone on launch is UTC.
+    # Proper time zones are loaded prior to any calls,
+    # though a backup is needed to compile `PainWeb.Components.Schedule`.
+    case DateTime.now("America/New_York") do
+      {:ok, c } -> c
+      {:error, _ } -> DateTime.utc_now()
+    end
+  end
 
   def bookable_months do
     1..3
@@ -34,8 +43,8 @@ defmodule Pain.Schedule do
     hd(Pain.Schedule.bookable_months())
   )
   """
-  def check_blocks headers, scheduling_keys, employee_keys, range do
-    keys = scheduling_keys |> Enum.reduce(%{}, fn x, acc ->
+  def check_blocks headers, service_keys, employee_keys, range do
+    keys = service_keys |> Enum.reduce(%{}, fn x, acc ->
       Map.update(acc, x, 1, &(&1 + 1)) end)
     (range |> Parallel.map(fn day ->
       if day < today(), do: [], else:
@@ -50,10 +59,6 @@ defmodule Pain.Schedule do
       end)
       |> reduce_blocks
     end))
-    |> Enum.filter(&(length(&1) > 0))
-    |> Enum.reduce(%{}, fn day, all ->
-      Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
-    end)
   end
 
   def reduce_calendars calendars do
