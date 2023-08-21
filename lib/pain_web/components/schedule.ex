@@ -47,6 +47,17 @@ defmodule PainWeb.Components.Schedule do
     # ) }
   end
 
+  def open_blocks possible_by_day, day do
+    case (
+      possible_by_day
+      |> Enum.filter(&(length(&1) > 0))
+      |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == day))
+    ) do
+      [] -> []
+      [blocks] -> blocks
+    end
+  end
+
   def render(assigns) do
     ~F"""
     <style>
@@ -78,8 +89,8 @@ defmodule PainWeb.Components.Schedule do
         <div>
           Please choose a block of time on {@day}.
           {#for block <- (@possible_by_day
-            |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == @day))
-            |> hd |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
+            |> open_blocks(@day)
+            |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
           )}
             <div>{block}</div>
           {/for}
