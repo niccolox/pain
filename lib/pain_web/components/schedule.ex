@@ -24,17 +24,10 @@ defmodule PainWeb.Components.Schedule do
   end
 
   def handle_event("schedule_day", params, socket) do
-    IO.inspect params
     {:noreply, assign(socket, :day, params["day"])}
   end
 
   def handle_event("schedule_month", params, socket) do
-    # IO.inspect params |> Map.keys
-    # IO.inspect socket.assigns |> Map.keys
-    # IO.inspect socket.assigns[:services]
-    # IO.inspect socket.assigns[:employees]
-    IO.inspect params
-
     {:noreply, socket
     |> assign(:possible_by_day,
       message() |> check_blocks(
@@ -58,7 +51,6 @@ defmodule PainWeb.Components.Schedule do
   end
 
   def render(assigns) do
-    # IO.inspect assigns[:possible_by_day]
     ~F"""
     <style>
       input {
