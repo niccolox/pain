@@ -12,7 +12,7 @@ defmodule PainWeb.Components.Service do
     ~F"""
     <style>
       div { display: flex; flex-direction: column; }
-      span { display: block;margin-bottom: 0.5rem; }
+      span { display: block; margin-bottom: 0.5rem; }
     </style>
 
     <Choices accion={@choose} name={@service["name"]} {=@number} choices={@chosen}>

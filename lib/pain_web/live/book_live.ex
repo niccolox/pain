@@ -11,7 +11,7 @@ defmodule PainWeb.BookLive do
 
   data number, :integer, default: 1
   data open_class, :string, default: ""
-  data services, :map, default: %{ 1 => "Cupping" }
+  data services, :map, default: %{}
   data employed, :map, default: %{}
   data schedule, :string, default: nil
 
