@@ -51,11 +51,12 @@ defmodule Pain.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:surface, "~> 0.11.0"},
+      {:surface_catalogue, "~> 0.6.0"},
       {:swoosh, "~> 1.3"},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:surface_catalogue, "~> 0.6.0"},
+      {:tzdata, "~> 1.1"},
       {:yaml_elixir, "~> 2.9"},
     ]
   end

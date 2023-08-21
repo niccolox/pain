@@ -9,9 +9,12 @@ defmodule Pain.Schedule do
     [ "Authorization": "Basic #{auth}", "Accept": "application/json" ]
   end
 
+  def now, do: DateTime.now("America/New_York") |> elem(1)
+  def today, do: now() |> DateTime.to_date()
+
   def bookable_months do
     1..3
-    |> Enum.reduce([DateTime.utc_now |> DateTime.to_date], fn _, months ->
+    |> Enum.reduce([today()], fn _, months ->
       prior = months |> Enum.reverse() |> hd()
       months ++ [
         prior
@@ -34,9 +37,8 @@ defmodule Pain.Schedule do
   def check_blocks headers, scheduling_keys, employee_keys, range do
     keys = scheduling_keys |> Enum.reduce(%{}, fn x, acc ->
       Map.update(acc, x, 1, &(&1 + 1)) end)
-
-    responses = (range |> Enum.map(fn day ->
-      if day < (DateTime.utc_now() |> DateTime.to_date()), do: [], else:
+    (range |> Enum.map(fn day ->
+      if day < today(), do: [], else:
       keys |> Enum.map(fn { key, demand } ->
         response = employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
@@ -48,9 +50,8 @@ defmodule Pain.Schedule do
       end)
       |> reduce_blocks
     end))
+    |> Enum.filter(&(length(&1) > 0))
     |> Enum.map(&(%{ (&1 |> hd |> String.split(" ")) => length &1 }))
-
-    # responses |> Enum.filter(&(length(&1) > 0))
   end
 
   def reduce_calendars calendars do
