@@ -37,9 +37,9 @@ defmodule Pain.Schedule do
   def check_blocks headers, scheduling_keys, employee_keys, range do
     keys = scheduling_keys |> Enum.reduce(%{}, fn x, acc ->
       Map.update(acc, x, 1, &(&1 + 1)) end)
-    (range |> Enum.map(fn day ->
+    (range |> Parallel.map(fn day ->
       if day < today(), do: [], else:
-      keys |> Enum.map(fn { key, demand } ->
+      keys |> Parallel.map(fn { key, demand } ->
         response = employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
           HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode!
