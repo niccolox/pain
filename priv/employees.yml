@@ -8,6 +8,7 @@ employees:
       skilled traditional Chinese medicine practitioner, using precise and
       gentle techniques to manipulate pressure points. In his free time, he
       enjoys fishing with friends.
+    schedule_key: 7733522
   - name: Bin Wang
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-4351609.png?1672163227"
     biography: |
@@ -17,6 +18,7 @@ employees:
       Chinese medicinal treatments. During decades of therapy and learning, I
       have accumulated a wealth of knowledge. I am willing to share my
       experience with you, hoping to help more people get well.
+    schedule_key: 4351609
   - name: Harry Qiao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-8178118.jpg?1680975338"
     biography: |
@@ -26,6 +28,7 @@ employees:
       techniques such as bone palpation, tendon manipulation, and acupressure
       to treat various pain symptoms, insomnia, and more. His approach is
       steady, comfortable, and effective. In his free time, he enjoys cooking.
+    schedule_key: 8178118
   - name: Lisa Lee
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733431.jpg?1680975387"
     biography: |
@@ -35,6 +38,7 @@ employees:
       condition. She apprenticed to learn TCM Tui Na and other traditional
       Chinese medical techniques. Lisa's biggest wish  is to help more people
       achieve better health.
+    schedule_key: 7733431
   - name: Lucy Gao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733550.jpg?1680975404"
     biography: |
@@ -44,6 +48,7 @@ employees:
       traditional Chinese medicine Tuina, not only inheriting her father's
       skills but also promoting Chinese medical treatments abroad by bringing
       them to the United States.
+    schedule_key: 7733550
   - name: Steven Zheng
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7822447.jpg?1680975439"
     biography: |
@@ -52,6 +57,7 @@ employees:
       powerful. He graduated from Shandong University of Traditional Chinese
       Medicine and has over a decade of work experience. In his spare time, he
       enjoys calligraphy art.
+    schedule_key: 7822447
   - name: Yo-Yo Liu
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7832226.jpg?1680975457"
     biography: |
@@ -60,3 +66,4 @@ employees:
       decade of experience in traditional Chinese medicine treatment, her
       strong and robust technique not only make you feel comfortable and
       relaxed, but also alleviate pain and stress. 
+    schedule_key: 7832226

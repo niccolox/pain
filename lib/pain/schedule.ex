@@ -9,25 +9,61 @@ defmodule Pain.Schedule do
     [ "Authorization": "Basic #{auth}", "Accept": "application/json" ]
   end
 
-  def day, do: DateTime.utc_now |> DateTime.to_string |> String.split(" ") |> hd
-  def month, do: day() |> String.split("-") |> Enum.take(2) |> Enum.join("-")
-
-  def check_days headers, scheduling_key do
-    check_days headers, scheduling_key, month()
+  def bookable_months do
+    1..3
+    |> Enum.reduce([DateTime.utc_now |> DateTime.to_date], fn _, months ->
+      prior = months |> Enum.reverse() |> hd()
+      months ++ [
+        prior
+        |> Date.add(31)
+        |> Date.beginning_of_month()
+      ]
+    end)
+    |> Enum.reduce([], fn beginning, months ->
+      months ++ [Date.range(beginning, Date.end_of_month(beginning)) ]
+    end)
   end
 
-  def check_days headers, scheduling_key, month do
-    choose_day =  "https://acuityscheduling.com/api/v1/availability/dates?month=#{month}&appointmentTypeID=#{scheduling_key}"
-    HTTPoison.get!(choose_day, headers) |> Map.get(:body) |> Jason.decode!
+  @doc """
+  days = Pain.Schedule.message |> Pain.Schedule.check_blocks(
+    [ 39928578, 39928780, 39928578, ],
+    [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
+    hd(Pain.Schedule.bookable_months())
+  )
+  """
+  def check_blocks headers, scheduling_keys, employee_keys, range do
+    keys = scheduling_keys |> Enum.reduce(%{}, fn x, acc ->
+      Map.update(acc, x, 1, &(&1 + 1)) end)
+
+    responses = (range |> Enum.map(fn day ->
+      if day < (DateTime.utc_now() |> DateTime.to_date()), do: [], else:
+      keys |> Enum.map(fn { key, demand } ->
+        response = employee_keys |> Enum.map(fn employee ->
+          search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
+          HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode!
+        end)
+        |> reduce_calendars
+        |> Enum.filter(fn { _, num } -> num >= demand end)
+        |> Enum.map(fn { block, _ } -> block end)
+      end)
+      |> reduce_blocks
+    end))
+    |> Enum.map(&(%{ (&1 |> hd |> String.split(" ")) => length &1 }))
+
+    # responses |> Enum.filter(&(length(&1) > 0))
   end
 
-  def check_hours headers, scheduling_key do
-    [day, _] = DateTime.utc_now |> DateTime.to_string |> String.split(" ")
-    check_hours headers, scheduling_key, day
+  def reduce_calendars calendars do
+    calendars |> Enum.reduce(%{}, fn calendar, all ->
+      calendar |> Enum.reduce(all, fn calBlock, cal ->
+        Map.update(cal, calBlock["time"], 0, &(&1 + calBlock["slotsAvailable"]))
+      end)
+    end)
   end
 
-  def check_hours headers, scheduling_key, day do
-    choose_hour =  "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{scheduling_key}"
-    HTTPoison.get!(choose_hour, headers) |> Map.get(:body) |> Jason.decode!
+  def reduce_blocks [original | remaining] do
+    remaining |> Enum.reduce(MapSet.new(original), fn blocks, solid ->
+      MapSet.intersection MapSet.new(blocks), solid
+    end) |> MapSet.to_list
   end
 end

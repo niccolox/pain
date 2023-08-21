@@ -1,22 +1,16 @@
 defmodule PainWeb.Components.Schedule do
   use Surface.Component
-  alias Phoenix.LiveView.JS
 
-  data month, :string, default: Pain.Schedule.month() # "2023-09"
+  data month, :string, default: "2023-08"
   data day, :string, default: nil
   data hour, :string, default: nil
 
   prop keys, :list
   prop done, :event
 
-  def schedule_days assigns do
-    assigns[:keys]
-    |> Enum.map(&(Pain.Schedule.message |> Pain.Schedule.check_days(&1)))
-  end
-
   def schedule_hours assigns do
     assigns[:keys]
-    |> Enum.map(&(Pain.Schedule.message |> Pain.Schedule.check_hours(&1)))
+    |> Enum.map(&(Pain.Schedule.message |> Pain.Schedule.check_blocks(&1)))
   end
 
   def render(assigns) do
@@ -24,7 +18,6 @@ defmodule PainWeb.Components.Schedule do
   end
 
   def render_days(assigns) do
-    # if length(assigns[:keys]) > 0, do: IO.inspect schedule_days assigns
     # if length(assigns[:keys]) > 0, do: IO.inspect schedule_hours assigns
 
     ~F"""
