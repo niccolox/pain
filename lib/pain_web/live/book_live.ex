@@ -10,9 +10,9 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Schedule
 
   data number, :integer, default: 1
+  data open_class, :string, default: ""
   data services, :map, default: %{ 1 => "Cupping" }
   data employed, :map, default: %{}
-  data open_class, :string, default: ""
   data schedule, :string, default: nil
 
   def handle_event("number", params, socket),
@@ -67,10 +67,10 @@ defmodule PainWeb.BookLive do
     |> List.flatten
   end
 
-  def service_keys(assigns) do
-    services = all_services()
-    assigns[:services] |> Map.values() |> Enum.map(fn name ->
-      Enum.find(services, &(&1["name"] == name))["schedule_key"]
+  def service_keys(services) do
+    all = all_services()
+    services |> Map.values() |> Enum.map(fn name ->
+      Enum.find(all, &(&1["name"] == name))["schedule_key"]
     end)
   end
 
@@ -139,9 +139,8 @@ defmodule PainWeb.BookLive do
           <hr/>
 
           {#if !@schedule}
-          <Schedule id="schedule" service_keys={service_keys(assigns)}
-            employee_keys={[ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226]}
-            />
+          <Schedule id="schedule" service_keys={service_keys(@services)}
+            employee_keys={employees() |> Enum.map(&(&1["schedule_key"]))} />
           {#else}
             {#if map_size(@employed) < @number}
               <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>

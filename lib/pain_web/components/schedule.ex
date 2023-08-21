@@ -5,9 +5,9 @@ defmodule PainWeb.Components.Schedule do
   prop service_keys, :list, default: []
   prop employee_keys, :list, default: []
 
-  # data services, :list, from_context: :service_keys
-  # data employees, :list, from_context: :employee_keys
   data possible_by_day, :map, default: %{}
+  data services, :list, default: []
+  data employees, :list, default: []
   data day, :string
   data block, :string, default: nil
 
@@ -16,10 +16,10 @@ defmodule PainWeb.Components.Schedule do
 
   def update(assigns, socket) do
     {:ok, socket
+    |> assign(:services, assigns[:service_keys])
+    |> assign(:employees, assigns[:employee_keys])
     |> assign(:possible_by_day, message() |> check_blocks(
       assigns[:service_keys], assigns[:employee_keys], this_month()))
-    # |> Context.put(:service_keys, assigns[:service_keys])
-    # |> Context.put(:employee_keys, assigns[:employee_keys])
     }
   end
 
@@ -29,22 +29,21 @@ defmodule PainWeb.Components.Schedule do
   end
 
   def handle_event("schedule_month", params, socket) do
-    IO.inspect params |> Map.keys
-    IO.inspect socket.assigns |> Map.keys
+    # IO.inspect params |> Map.keys
+    # IO.inspect socket.assigns |> Map.keys
+    # IO.inspect socket.assigns[:services]
+    # IO.inspect socket.assigns[:employees]
+    IO.inspect params
 
-    # services = Context.get(socket, :service_keys)
-    # employees = Context.get(socket, :employee_keys)
-    # IO.inspect services
-    # IO.inspect employees
-
-    {:noreply, socket }
-
-    # |> assign(:possible_by_day,
-    #   message() |> check_blocks(
-    #   socket.assigns[:service_keys],
-    #   socket.assigns[:employee_keys],
-    #   month(params["month"]))
-    # ) }
+    {:noreply, socket
+    |> assign(:possible_by_day,
+      message() |> check_blocks(
+        socket.assigns[:services],
+        socket.assigns[:employees],
+        month("#{params["year"]}-#{params["month"]}"))
+    )
+    |> push_event("color", %{})
+    }
   end
 
   def open_blocks possible_by_day, day do
@@ -59,6 +58,7 @@ defmodule PainWeb.Components.Schedule do
   end
 
   def render(assigns) do
+    # IO.inspect assigns[:possible_by_day]
     ~F"""
     <style>
       input {

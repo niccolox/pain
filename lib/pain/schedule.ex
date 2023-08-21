@@ -45,11 +45,12 @@ defmodule Pain.Schedule do
       keys |> Parallel.map(fn { key, demand } ->
         employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
-          HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode!
-          # case HTTPoison.get(search_hours, headers) do
-          #   {:ok, r} -> r |> Map.get(:body) |> Jason.decode!()
-          #   {:error, m} -> raise m
-          # end
+          case (
+            HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode
+          ) do
+            {:ok, r} -> r
+            {:error, m} -> []
+          end
         end)
         |> reduce_calendars
         |> Enum.filter(fn { _, num } -> num >= demand end)
