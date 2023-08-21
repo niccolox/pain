@@ -1,5 +1,6 @@
 defmodule PainWeb.Components.Schedule do
   use Surface.Component
+  import Pain.Schedule
 
   data month, :string, default: "2023-08"
   data day, :string, default: nil
@@ -8,18 +9,11 @@ defmodule PainWeb.Components.Schedule do
   prop keys, :list
   prop done, :event
 
-  def schedule_hours assigns do
-    assigns[:keys]
-    |> Enum.map(&(Pain.Schedule.message |> Pain.Schedule.check_blocks(&1)))
-  end
-
   def render(assigns) do
     if !assigns[:day], do: render_days(assigns), else: render_hours(assigns)
   end
 
   def render_days(assigns) do
-    # if length(assigns[:keys]) > 0, do: IO.inspect schedule_hours assigns
-
     ~F"""
     <style>
       input {
@@ -35,7 +29,11 @@ defmodule PainWeb.Components.Schedule do
 
       <div>
         <input type="text" id="calendar" :hook="Calendar"
-          data-day={Pain.Schedule.day()}
+          data-day={today()}
+          data-possible={message() |> check_blocks(@keys,
+          [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
+          hd(bookable_months())
+          ) |> Jason.encode! }
         />
       </div>
     </section>

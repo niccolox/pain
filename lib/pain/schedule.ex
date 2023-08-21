@@ -40,18 +40,19 @@ defmodule Pain.Schedule do
     (range |> Parallel.map(fn day ->
       if day < today(), do: [], else:
       keys |> Parallel.map(fn { key, demand } ->
-        response = employee_keys |> Enum.map(fn employee ->
+        employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
           HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode!
         end)
         |> reduce_calendars
         |> Enum.filter(fn { _, num } -> num >= demand end)
         |> Enum.map(fn { block, _ } -> block end)
-      end)
-      |> reduce_blocks
+      end) |> reduce_blocks
     end))
     |> Enum.filter(&(length(&1) > 0))
-    |> Enum.map(&(%{ (&1 |> hd |> String.split(" ")) => length &1 }))
+    |> Enum.reduce(%{}, fn day, all ->
+      Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
+    end)
   end
 
   def reduce_calendars calendars do
