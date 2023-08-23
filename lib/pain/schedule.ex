@@ -33,9 +33,9 @@ defmodule Pain.Schedule do
 
   @doc """
   days = Pain.Schedule.message |> Pain.Schedule.check_blocks(
-    [ 39928578, 39928780, 39928578, ],
+    [ 39928578, 39928780, 39931669, ],
     [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
-    this_month()
+    Pain.Schedule.this_month()
   )
   """
   def check_blocks headers, service_keys, employee_keys, range do
@@ -45,11 +45,9 @@ defmodule Pain.Schedule do
       keys |> Parallel.map(fn { key, demand } ->
         employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
-          case (
-            HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode
-          ) do
-            {:ok, r} -> r
-            {:error, m} -> []
+          case (HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode) do
+            {:ok, r = %{"status_code" => 400}} -> []
+            {:ok, r } -> r
           end
         end)
         |> reduce_calendars
