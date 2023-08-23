@@ -6,8 +6,6 @@ defmodule PainWeb.Components.Schedule do
   prop employee_keys, :list, default: []
 
   data possible_by_day, :map, default: %{}
-  data services, :list, default: []
-  data employees, :list, default: []
   data day, :string
   data block, :string, default: nil
 
@@ -16,8 +14,7 @@ defmodule PainWeb.Components.Schedule do
 
   def update(assigns, socket) do
     {:ok, socket
-    |> assign(:services, assigns[:service_keys])
-    |> assign(:employees, assigns[:employee_keys])
+    |> assign(assigns)
     |> assign(:possible_by_day, message() |> check_blocks(
       assigns[:service_keys], assigns[:employee_keys], this_month()))
     }
@@ -31,8 +28,8 @@ defmodule PainWeb.Components.Schedule do
     {:noreply, socket
     |> assign(:possible_by_day,
       message() |> check_blocks(
-        socket.assigns[:services],
-        socket.assigns[:employees],
+        socket.assigns[:service_keys],
+        socket.assigns[:employee_keys],
         month("#{params["year"]}-#{params["month"]}"))
     )
     |> push_event("color", %{})
