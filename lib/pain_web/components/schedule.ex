@@ -56,10 +56,7 @@ defmodule PainWeb.Components.Schedule do
         padding: 0.6rem;
         text-align: center;
       }
-      .inline {
-        display: flex;
-        justify-content: space-around;
-      }
+      .inline { display: flex; justify-content: space-around; }
       .inline > * { margin: 0.6rem; }
     </style>
 
@@ -76,13 +73,17 @@ defmodule PainWeb.Components.Schedule do
           <input type="text" id="calendar" :hook="Calendar" phx-target={@myself} />
         </div>
         <div>
-          Please choose a block of time on {@day}.
-          {#for block <- (@possible_by_day
-            |> open_blocks(@day)
-            |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
-          )}
-            <div>{block}</div>
-          {/for}
+          {#if length(@possible_by_day |> open_blocks(@day)) == 0}
+            There are no more openings on {@day}.
+          {#else}
+            Please choose a block of time on {@day}.
+            {#for block <- (@possible_by_day
+              |> open_blocks(@day)
+              |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
+            )}
+              <div>{block}</div>
+            {/for}
+          {/if}
         </div>
       </div>
     </section>

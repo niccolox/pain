@@ -16,14 +16,14 @@ defmodule PainWeb.Components.Service do
     </style>
 
     <Choices accion={@choose} name={@service["name"]} {=@number} choices={@chosen}>
-      <div>
+      <div class="heading">
         <h4>{@service["name"]}</h4>
-        {#if @service["hanyu"]}<h4>{@service["hanyu"]}</h4>{/if}
-      </div>
-      <:summary>
+        {#if @service["hanyu"]}<span>{@service["hanyu"]}</span>{/if}
         <span>{@service["duracion"]}</span>
-        {@service["descripcion"]}
-        </:summary>
+      </div>
+      <:summary><div class="summary">
+        <span>{@service["descripcion"]}</span>
+      </div></:summary>
     </Choices>
     """
   end
