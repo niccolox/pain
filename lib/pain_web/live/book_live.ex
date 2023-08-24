@@ -114,7 +114,7 @@ defmodule PainWeb.BookLive do
 
   def employee_bookable?(calendars, employee, services, employed) do
     ss = all_services()
-    case (employed |> Enum.find(fn {key, val} -> val == employee["name"] end)) do
+    case (employed |> Enum.find(fn {_, name} -> name == employee["name"] end)) do
       # remember: you can only book an employee once per block.
       {n, _employee} ->
         Map.put %{ 1 => false, 2 => false, 3 => false, 4 => false }, n, true
@@ -154,7 +154,7 @@ defmodule PainWeb.BookLive do
     <div class="order">
       <Card rounded>
         <:header>
-          Book an appointment
+          {"Book #{ngettext("an appointment", "appointments", @number)}"}
         </:header>
 
         <h2>How many people are you booking for?</h2>
@@ -183,17 +183,17 @@ defmodule PainWeb.BookLive do
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
         {#else}
-          <h2>You are booking:</h2>
-
           <Accion accion="Change" click="clear_services">
-            <ul>{#for service <- chosen_services(assigns)}
-              <li>
-                {service["name"]}
-                {#if service["hanyu"]} / {service["hanyu"]}{/if}
-                {service["duracion"]}
-              </li>
-            {/for}</ul>
+            <h2>You are booking:</h2>
           </Accion>
+
+          <ul>{#for service <- chosen_services(assigns)}
+            <li>
+              {service["name"]}
+              {#if service["hanyu"]} / {service["hanyu"]}{/if}
+              {service["duracion"]}
+            </li>
+          {/for}</ul>
 
           <hr/>
 
@@ -202,12 +202,14 @@ defmodule PainWeb.BookLive do
             {=employee_keys()} service_keys={service_keys(@services)} />
           {#else}
             <Accion accion="Change" click="clear_schedule" shape="">
-            <h2>Your appointment is going to be:</h2>
-              <ul>
+              <h2>Your {ngettext("appointment is", "appointments are", @number)} going to be:</h2>
+            </Accion>
+
+            <ul>
               <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
               <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
-              </ul>
-            </Accion>
+            </ul>
+
             <hr/>
 
             {#if map_size(@employed) < @number}
@@ -233,15 +235,23 @@ defmodule PainWeb.BookLive do
               {#else}<p>Seems like an error has occurred.</p>{/for}
             {#else}
               <Accion accion="Change" click="clear_employees" shape="">
-                <p>Your therapist {ngettext("choice is", "choices are", @number)}:</p>
-                <ul>{#for employee <- Map.values(@employed)}
-                  <li>{#case employee}
-                  {#match "_any"}No preference
-                  {#match "_masc"}Any (masculine)
-                  {#match "_fem"}Any (feminine)
-                  {#match name}{name}
-                  {/case}</li>
-                {/for}</ul>
+                <h2>Your therapist {ngettext("choice is", "choices are", @number)}:</h2>
+              </Accion>
+
+              <ul>{#for employee <- Map.values(@employed)}
+                <li>{#case employee}
+                {#match "_any"}No preference
+                {#match "_masc"}Any (masculine)
+                {#match "_fem"}Any (feminine)
+                {#match name}{name}
+                {/case}</li>
+              {/for}</ul>
+
+              <hr/>
+
+              <Accion click="book" key="book"
+                accion={"Book your #{ngettext("appointment", "appointments", @number)}"} >
+                <h2>Please proceed once you're ready.</h2>
               </Accion>
             {/if}
           {/if}

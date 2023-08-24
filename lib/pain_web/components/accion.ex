@@ -13,10 +13,12 @@ defmodule PainWeb.Components.Accion do
     <style>
       p { margin-bottom: 1.2rem; }
       .accion {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-content: center;
         margin-bottom: 0.6rem;
+        align-items: center;
       }
       .accion .main { grid-column: 1; }
       .accion button { grid-row: 1 / -1; grid-column: 2; }
