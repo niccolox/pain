@@ -7,6 +7,7 @@ defmodule PainWeb.Components.Employee do
   prop choices, :map, default: %{}
   prop number, :integer, default: 1
   prop display_bios, :boolean, default: true
+  prop bookable, :map, default: %{}
 
   def render(assigns) do
     ~F"""
@@ -18,7 +19,8 @@ defmodule PainWeb.Components.Employee do
       }
     </style>
 
-    <Choices {=@number} {=@choices} accion={@employ} name={@employee["name"]}>
+    <Choices {=@number} {=@choices} accion={@employ}
+      name={@employee["name"]} enabled={@bookable} >
       <h2>{@employee["name"]}</h2>
       <:summary>
         <img src={@employee["image"]} />
