@@ -32,9 +32,12 @@ defmodule PainWeb.BookLive do
   def handle_event("clear_services", _, socket),
     do: {:noreply, assign(socket, :services, %{})}
 
-  def handle_event("employ", params, socket),
-    do: {:noreply, update(socket, :employed,
-    &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
+  def handle_event("employ", params, socket) do
+    {:noreply, update(socket, :employed, fn employed ->
+      Map.update(employed, String.to_integer(params["num"]), params["name"],
+        &(if &1 == params["name"], do: nil, else: params["name"]))
+    end)}
+  end
   def handle_event("clear_employees", _, socket),
     do: {:noreply, assign(socket, :employed, %{})}
 
@@ -65,7 +68,7 @@ defmodule PainWeb.BookLive do
     end) |> List.flatten
   end
 
-  def employees do
+  def all_employees do
     {:ok, e} = (
       :pain
       |> Application.app_dir("priv")
@@ -99,7 +102,7 @@ defmodule PainWeb.BookLive do
   end
 
   def employee_keys do
-    employees() |> Enum.map(&(&1["schedule_key"]))
+    all_employees() |> Enum.map(&(&1["schedule_key"]))
   end
 
   def schedule_calendars(schedule, assigns) do
@@ -109,17 +112,23 @@ defmodule PainWeb.BookLive do
       employee_keys())
   end
 
-  def employee_bookable?(calendars, employee, services) do
+  def employee_bookable?(calendars, employee, services, employed) do
     ss = all_services()
-
-    services |> Enum.reduce(%{}, fn { n, s }, map ->
-      service = ss |> Enum.filter(&(&1["name"] == s)) |> hd
-      Map.put(map, n, (calendars
-      |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
-      |> Enum.filter(&(&1["appointmentTypeID"] == service["schedule_key"]))
-      |> Enum.filter(&(&1["valid"]))
-      |> length()) > 0)
-    end)
+    case (employed |> Enum.find(fn {key, val} -> val == employee["name"] end)) do
+      # remember: you can only book an employee once per block.
+      {n, _employee} ->
+        Map.put %{ 1 => false, 2 => false, 3 => false, 4 => false }, n, true
+      # usually, check each employee's schedule.
+      _ ->
+        services |> Enum.reduce(%{}, fn { n, s }, map ->
+          service = ss |> Enum.filter(&(&1["name"] == s)) |> hd
+          Map.put(map, n, (calendars
+          |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
+          |> Enum.filter(&(&1["appointmentTypeID"] == service["schedule_key"]))
+          |> Enum.filter(&(&1["valid"]))
+          |> length()) > 0)
+        end)
+    end
   end
 
   def render(assigns) do
@@ -216,10 +225,10 @@ defmodule PainWeb.BookLive do
               <Choices {=@number} choices={@employed} accion="employ" name="_fem"
               ><span class="employ-generic">Any (feminine)</span></Choices>
 
-              {#for employee <- employees()}
+              {#for employee <- all_employees()}
               <Employee {=employee} id={employee["name"]} {=@display_bios}
                 employ="employ" choices={@employed} {=@number}
-                bookable={@calendars |> employee_bookable?(employee, @services)}
+                bookable={@calendars |> employee_bookable?(employee, @services, @employed)}
               />
               {#else}<p>Seems like an error has occurred.</p>{/for}
             {#else}

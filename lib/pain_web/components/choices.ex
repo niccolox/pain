@@ -35,10 +35,9 @@ defmodule PainWeb.Components.Choices do
         <span class="join">{#for num <- (1..@number)}
           <button phx-value-num={num} phx-value-name={@name}
             :on-click={if @enabled[num] == false, do: nil, else: @accion}
-          class={"btn", "join-item",
-            "btn-active": @choices[num] == @name,
-            "btn-disabled": @enabled[num] == false
-          } >
+            class={"btn", "join-item", "btn-active": @choices[num] == @name }
+            disabled={@enabled[num] == false}
+          >
             {if @choices[num] == @name, do: "✔", else: "🗙"}
           </button>
         {/for}</span>

@@ -55,7 +55,10 @@ defmodule Pain.Schedule do
   end
 
   def check_calendar_day_service service, employee_keys, day do
-    employee_keys |> Enum.map(fn employee ->
+    cals = calendars()
+    employee_keys
+    |> Enum.filter(&(Enum.member?(Map.get(cals, service), &1)))
+    |> Enum.map(fn employee ->
       search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{service}&calendarID=#{employee}"
       case (HTTPoison.get!(search_hours, headers()) |> Map.get(:body) |> Jason.decode) do
         {:error, r} -> log r; []
@@ -73,9 +76,10 @@ defmodule Pain.Schedule do
   """
   def check_blocks_on_calendars block, service_keys, employee_keys do
     address = "https://acuityscheduling.com/api/v1/availability/check-times"
+    cals = calendars()
     service_keys |> Enum.map(fn service ->
       body = (employee_keys
-      |> Enum.filter(&(Enum.member?(Map.get(calendars(), service), &1)))
+      |> Enum.filter(&(Enum.member?(Map.get(cals, service), &1)))
       |> Enum.map(fn employee -> %{
         datetime: block,
         appointmentTypeID: service,
