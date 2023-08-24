@@ -37,7 +37,7 @@ defmodule PainWeb.Components.Choices do
             :on-click={if @enabled[num] == false, do: nil, else: @accion}
           class={"btn", "join-item",
             "btn-active": @choices[num] == @name,
-            "btn-disabled": @enabled[num] == false,
+            "btn-disabled": @enabled[num] == false
           } >
             {if @choices[num] == @name, do: "✔", else: "🗙"}
           </button>

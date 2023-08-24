@@ -87,7 +87,7 @@ defmodule PainWeb.Components.Schedule do
                 <div class="hour"><span>{hour}:</span>
                 {#for min <- mins}
                   <div role="link" class="min" :on-click={@schedule}
-                    phx-value-shape={"#{@day}T#{hour}:#{min}" <> ending()}>
+                    phx-value-shape={"#{@day}T#{hour}:#{min}"}>
                     {min}</div>
                 {/for}</div>
               {/for}

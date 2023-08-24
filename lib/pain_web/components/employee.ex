@@ -14,16 +14,15 @@ defmodule PainWeb.Components.Employee do
     <style>
       h2 { align-self: center; }
       img { max-width: 40%; margin-right: 1rem; }
-      @media (max-width: 1080px) {
-        img { float: left; }
-      }
+      img.small { max-width: 20%; }
+      @media (max-width: 1080px) { img { float: left; } }
     </style>
 
     <Choices {=@number} {=@choices} accion={@employ}
       name={@employee["name"]} enabled={@bookable} >
       <h2>{@employee["name"]}</h2>
       <:summary>
-        <img src={@employee["image"]} />
+        <img class={ small: !@display_bios }src={@employee["image"]} />
         <p>{if @display_bios, do: @employee["biography"],
           else: Squish.pare(@employee["biography"], size: 160)}
         </p>

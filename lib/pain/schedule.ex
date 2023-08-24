@@ -9,7 +9,8 @@ defmodule Pain.Schedule do
     [ "Authorization": "Basic #{auth}", "Accept": "application/json" ]
   end
 
-  def ending, do: ":00Z-04:00"
+  def ending, do: ":00-0400"
+  def log(node), do: node # |> IO.inspect
 
   def today, do: now() |> DateTime.to_date()
   def now do
@@ -57,8 +58,8 @@ defmodule Pain.Schedule do
     employee_keys |> Enum.map(fn employee ->
       search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{service}&calendarID=#{employee}"
       case (HTTPoison.get!(search_hours, headers()) |> Map.get(:body) |> Jason.decode) do
-        {:error, r} -> IO.inspect r; []
-        {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
+        {:error, r} -> log r; []
+        {:ok, r = %{"status_code" => 400}} -> log r; []
         {:ok, r } -> r
       end
     end)
@@ -66,29 +67,27 @@ defmodule Pain.Schedule do
 
   @doc """
   Pain.Schedule.check_blocks_on_calendars(
-    ~N[2023-08-24 16:00:00],
-    [39929598, 39931669],
+    "2023-08-28T14:00:00-0400",
+    [39929015, 39925969, 39928578, 39931669],
     [7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226])
   """
   def check_blocks_on_calendars block, service_keys, employee_keys do
     address = "https://acuityscheduling.com/api/v1/availability/check-times"
-    body = service_keys |> Enum.map(fn service ->
-      employee_keys
+    service_keys |> Enum.map(fn service ->
+      body = (employee_keys
       |> Enum.filter(&(Enum.member?(Map.get(calendars(), service), &1)))
-      |> Enum.map(fn employee ->
-        %{
-          datetime: block,
-          appointmentTypeID: service,
-          calendarID: employee
-        }
-      end)
-    end) |> Squish.squish |> Jason.encode!
+      |> Enum.map(fn employee -> %{
+        datetime: block,
+        appointmentTypeID: service,
+        calendarID: employee
+      } end)) |> Jason.encode!
 
-    case (HTTPoison.post!(address, body, headers()) |> Map.get(:body) |> Jason.decode) do
-      {:error, r} -> IO.inspect r; []
-      {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
-      {:ok, r } -> r
-    end
+      case (HTTPoison.post!(address, body, headers()) |> Map.get(:body) |> Jason.decode) do
+        {:error, r} -> log r; []
+        {:ok, r = %{"status_code" => 400}} -> log r; []
+        {:ok, r } -> r
+      end
+    end) |> Squish.squish
   end
 
   def calendars do

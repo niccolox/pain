@@ -91,18 +91,35 @@ defmodule PainWeb.BookLive do
     end)
   end
 
-  def scheduled_block(schedule),
-    do: NaiveDateTime.from_iso8601(schedule |> String.slice(0, 20)) |> elem(1)
+  def scheduled_block(schedule) do
+    (schedule <> ":00Z-04:00")
+    |> String.slice(0, 20)
+    |> NaiveDateTime.from_iso8601()
+    |> elem(1)
+  end
 
   def employee_keys do
     employees() |> Enum.map(&(&1["schedule_key"]))
   end
 
   def schedule_calendars(schedule, assigns) do
-    schedule
+    (schedule <> Pain.Schedule.ending)
     |> check_blocks_on_calendars(
       assigns[:services] |> service_keys(),
       employee_keys())
+  end
+
+  def employee_bookable?(calendars, employee, services) do
+    ss = all_services()
+
+    services |> Enum.reduce(%{}, fn { n, s }, map ->
+      service = ss |> Enum.filter(&(&1["name"] == s)) |> hd
+      Map.put(map, n, (calendars
+      |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
+      |> Enum.filter(&(&1["appointmentTypeID"] == service["schedule_key"]))
+      |> Enum.filter(&(&1["valid"]))
+      |> length()) > 0)
+    end)
   end
 
   def render(assigns) do
@@ -201,7 +218,9 @@ defmodule PainWeb.BookLive do
 
               {#for employee <- employees()}
               <Employee {=employee} id={employee["name"]} {=@display_bios}
-                employ="employ" choices={@employed} {=@number} />
+                employ="employ" choices={@employed} {=@number}
+                bookable={@calendars |> employee_bookable?(employee, @services)}
+              />
               {#else}<p>Seems like an error has occurred.</p>{/for}
             {#else}
               <Accion accion="Change" click="clear_employees" shape="">
