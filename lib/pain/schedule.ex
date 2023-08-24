@@ -64,6 +64,44 @@ defmodule Pain.Schedule do
     end)
   end
 
+  @doc """
+  Pain.Schedule.check_blocks_on_calendars(
+    ~N[2023-08-24 16:00:00],
+    [39929598, 39931669],
+    [7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226])
+  """
+  def check_blocks_on_calendars block, service_keys, employee_keys do
+    address = "https://acuityscheduling.com/api/v1/availability/check-times"
+    body = service_keys |> Enum.map(fn service ->
+      employee_keys
+      |> Enum.filter(&(Enum.member?(Map.get(calendars(), service), &1)))
+      |> Enum.map(fn employee ->
+        %{
+          datetime: block,
+          appointmentTypeID: service,
+          calendarID: employee
+        }
+      end)
+    end) |> Squish.squish |> Jason.encode!
+
+    case (HTTPoison.post!(address, body, headers()) |> Map.get(:body) |> Jason.decode) do
+      {:error, r} -> IO.inspect r; []
+      {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
+      {:ok, r } -> r
+    end
+  end
+
+  def calendars do
+    case (
+      HTTPoison.get!("https://acuityscheduling.com/api/v1/appointment-types", headers())
+      |> Map.get(:body) |> Jason.decode
+    ) do
+      {:ok, r} -> r
+    end |> Enum.reduce(%{}, fn x, calendars ->
+      Map.put(calendars, Map.get(x, "id"), Map.get(x, "calendarIDs"))
+    end)
+  end
+
   def reduce_calendars calendars do
     calendars |> Enum.reduce(%{}, fn calendar, all ->
       calendar |> Enum.reduce(all, fn calBlock, cal ->

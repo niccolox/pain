@@ -2,6 +2,8 @@ defmodule PainWeb.BookLive do
   use Surface.LiveView
   import PainWeb.Gettext
 
+  import Pain.Schedule, only: [check_blocks_on_calendars: 3]
+
   alias PainWeb.Components.Card
   alias PainWeb.Components.Class
   alias PainWeb.Components.Employee
@@ -14,6 +16,7 @@ defmodule PainWeb.BookLive do
   data services, :map, default: %{}
   data employed, :map, default: %{}
   data schedule, :string, default: nil
+  data calendars, :map, default: %{}
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -33,10 +36,14 @@ defmodule PainWeb.BookLive do
   def handle_event("clear_employees", _, socket),
     do: {:noreply, assign(socket, :employed, %{})}
 
-  def handle_event("schedule", params, socket),
-    do: {:noreply, assign(socket, :schedule, params["shape"])}
   def handle_event("clear_schedule", _, socket),
     do: {:noreply, assign(socket, :schedule, nil)}
+  def handle_event("schedule", params, socket) do
+    {:noreply, socket
+    |> assign(:schedule, params["shape"])
+    |> assign(:calendars, params["shape"] |> schedule_calendars(socket.assigns))
+    }
+  end
 
   def classed_services do
     {:ok, s} = (
@@ -80,7 +87,18 @@ defmodule PainWeb.BookLive do
   end
 
   def scheduled_block(schedule),
-  do: NaiveDateTime.from_iso8601(schedule |> String.slice(0, 20)) |> elem(1)
+    do: NaiveDateTime.from_iso8601(schedule |> String.slice(0, 20)) |> elem(1)
+
+  def employee_keys do
+    employees() |> Enum.map(&(&1["schedule_key"]))
+  end
+
+  def schedule_calendars(schedule, assigns) do
+    schedule
+    |> check_blocks_on_calendars(
+      assigns[:services] |> service_keys(),
+      employee_keys())
+  end
 
   def render(assigns) do
     ~F"""
@@ -147,8 +165,8 @@ defmodule PainWeb.BookLive do
           <hr/>
 
           {#if !@schedule}
-          <Schedule id="schedule" service_keys={service_keys(@services)} schedule="schedule"
-            employee_keys={employees() |> Enum.map(&(&1["schedule_key"]))} />
+          <Schedule id="schedule" schedule="schedule"
+            {=employee_keys()} service_keys={service_keys(@services)} />
           {#else}
             <Accion accion="Change" click="clear_schedule" shape="">
               Your appointment is going to be:
