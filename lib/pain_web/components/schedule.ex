@@ -4,6 +4,7 @@ defmodule PainWeb.Components.Schedule do
 
   prop service_keys, :list, default: []
   prop employee_keys, :list, default: []
+  prop schedule, :event, required: true
 
   data possible_by_day, :map, default: %{}
   data day, :string
@@ -36,17 +37,6 @@ defmodule PainWeb.Components.Schedule do
     }
   end
 
-  def open_blocks possible_by_day, day do
-    case (
-      possible_by_day
-      |> Enum.filter(&(length(&1) > 0))
-      |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == day))
-    ) do
-      [] -> []
-      [blocks] -> blocks
-    end
-  end
-
   def render(assigns) do
     ~F"""
     <style>
@@ -58,6 +48,21 @@ defmodule PainWeb.Components.Schedule do
       }
       .inline { display: flex; justify-content: space-around; }
       .inline > * { margin: 0.6rem; }
+      @media(max-width: 1080px) { .inline {
+        flex-direction: column;
+      } }
+
+      .blocks { display: flex; flex-wrap: wrap; }
+      .hour {
+        width: 4rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin: 0.5rem;
+        padding: 0.5rem;
+        border: 1px solid lightgrey;
+      }
+      .hour > span { grid-column: 1; grid-row: 1 / -1; font-weight: 600; }
+      .hour > .min { grid-column: 2; text-decoration: underline; cursor: pointer; }
     </style>
 
     <section class="schedule" data-day={today()} data-possible={
@@ -77,12 +82,16 @@ defmodule PainWeb.Components.Schedule do
             There are no more openings on {@day}.
           {#else}
             Please choose a block of time on {@day}.
-            {#for block <- (@possible_by_day
-              |> open_blocks(@day)
-              |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
-            )}
-              <div>{block}</div>
-            {/for}
+            <div class="blocks">
+              {#for {hour, mins} <- (@possible_by_day |> open_blocks(@day) |> hour_map())}
+                <div class="hour"><span>{hour}:</span>
+                {#for min <- mins}
+                  <div role="link" class="min" :on-click={@schedule}
+                    phx-value-shape={"#{@day}T#{hour}:#{min}" <> ending()}>
+                    {min}</div>
+                {/for}</div>
+              {/for}
+            </div>
           {/if}
         </div>
       </div>

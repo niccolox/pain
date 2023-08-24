@@ -9,14 +9,17 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Schedule
 
-  data number, :integer, default: 1
+  data number, :integer, default: 2
   data open_class, :string, default: ""
-  data services, :map, default: %{}
+  data services, :map, default: %{ 1 => "Cupping", 2 => "Wet Cupping" }
   data employed, :map, default: %{}
-  data schedule, :string, default: nil
+  data schedule, :string, default: "2023-08-24T17:00:00Z-04:00"
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
+
+  def handle_event("open_class", params, socket),
+    do: {:noreply, assign(socket, :open_class, params["name"])}
 
   def handle_event("choose_service", params, socket),
     do: {:noreply, update(socket, :services,
@@ -30,8 +33,10 @@ defmodule PainWeb.BookLive do
   def handle_event("clear_employees", _, socket),
     do: {:noreply, assign(socket, :employed, %{})}
 
-  def handle_event("open_class", params, socket),
-    do: {:noreply, assign(socket, :open_class, params["name"])}
+  def handle_event("schedule", params, socket),
+    do: {:noreply, assign(socket, :schedule, params["shape"])}
+  def handle_event("clear_schedule", _, socket),
+    do: {:noreply, assign(socket, :schedule, nil)}
 
   def classed_services do
     {:ok, s} = (
@@ -74,6 +79,9 @@ defmodule PainWeb.BookLive do
     end)
   end
 
+  def scheduled_block(schedule),
+  do: NaiveDateTime.from_iso8601(schedule |> String.slice(0, 20)) |> elem(1)
+
   def render(assigns) do
     ~F"""
     <style>
@@ -89,7 +97,7 @@ defmodule PainWeb.BookLive do
         width: 100vw;
       }
       hr { margin: 2rem 0 2rem; }
-      ul { padding-left: 1rem; list-style: disc; }
+      ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
     </style>
 
     <div class="order">
@@ -139,9 +147,19 @@ defmodule PainWeb.BookLive do
           <hr/>
 
           {#if !@schedule}
-          <Schedule id="schedule" service_keys={service_keys(@services)}
+          <Schedule id="schedule" service_keys={service_keys(@services)} schedule="schedule"
             employee_keys={employees() |> Enum.map(&(&1["schedule_key"]))} />
           {#else}
+            <Accion accion="Change" click="clear_schedule" shape="">
+              Your appointment is going to be:
+              <ul>
+              <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
+              <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
+              </ul>
+              <p>Please choose your {ngettext("therapist", "therapists", @number)} and finish booking.</p>
+            </Accion>
+            <hr/>
+
             {#if map_size(@employed) < @number}
               <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>
 

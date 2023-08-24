@@ -9,6 +9,8 @@ defmodule Pain.Schedule do
     [ "Authorization": "Basic #{auth}", "Accept": "application/json" ]
   end
 
+  def ending, do: ":00Z-04:00"
+
   def today, do: now() |> DateTime.to_date()
   def now do
     # On initial app load, tzdata needs to pull time zones,
@@ -32,11 +34,11 @@ defmodule Pain.Schedule do
   end
 
   @doc """
-  days = Pain.Schedule.message |> Pain.Schedule.check_blocks(
+  import Pain.Schedule
+  message() |> check_blocks(
     [ 39928578, 39928780, 39931669, ],
     [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
-    Pain.Schedule.this_month()
-  )
+    this_month())
   """
   def check_blocks headers, service_keys, employee_keys, range do
     keys = service_keys |> Enum.reduce(%{}, fn x, acc ->
@@ -46,7 +48,8 @@ defmodule Pain.Schedule do
         employee_keys |> Enum.map(fn employee ->
           search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
           case (HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode) do
-            {:ok, r = %{"status_code" => 400}} -> []
+            {:error, r} -> IO.inspect r; []
+            {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
             {:ok, r } -> r
           end
         end)
@@ -70,5 +73,35 @@ defmodule Pain.Schedule do
     remaining |> Enum.reduce(MapSet.new(original), fn blocks, solid ->
       MapSet.intersection MapSet.new(blocks), solid
     end) |> MapSet.to_list
+  end
+
+  def open_blocks possible_by_day, day do
+    case (
+      possible_by_day
+      |> Enum.filter(&(length(&1) > 0))
+      |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == day))
+    ) do
+      [] -> []
+      [blocks] -> blocks
+    end
+  end
+
+  @doc """
+  import Pain.Schedule
+  message() |> check_blocks(
+    [ 39928578, 39928780, 39931669, ],
+    [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
+    this_month())
+  |> open_blocks("2023-08-30")
+  |> hour_map()
+  """
+  def hour_map(clocks) do
+    clocks
+    |> Enum.map(&( Regex.scan(~r/\d{2}:\d{2}/, &1) |> hd |> hd))
+    |> Enum.sort()
+    |> Enum.reduce(%{}, fn c, by_hour ->
+      [h | [m | []]] = c |> String.split(":")
+      Map.update(by_hour, h, [m], &(&1 ++ [m]))
+    end)
   end
 end
