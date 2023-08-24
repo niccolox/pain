@@ -7,6 +7,7 @@ defmodule PainWeb.Components.Choices do
   prop name, :string
   prop class, :css_class
   prop enabled, :map, default: %{}
+  prop labels, :map, default: %{}
 
   slot default
   slot summary
@@ -27,6 +28,8 @@ defmodule PainWeb.Components.Choices do
       }
       .summary { padding-top: 0.5rem; }
       @media (max-width: 1080px) { .summary { display: block; } }
+      button { position: relative; }
+      button .label { position: absolute; bottom: 0; right: 0; }
     </style>
 
     <section class="choices" >
@@ -39,6 +42,7 @@ defmodule PainWeb.Components.Choices do
             disabled={@enabled[num] == false}
           >
             {if @choices[num] == @name, do: "✔", else: "🗙"}
+            {#if @labels[num]}<span class="label">{@labels[num]}</span>{/if}
           </button>
         {/for}</span>
       </div>

@@ -121,14 +121,69 @@ defmodule PainWeb.BookLive do
       # usually, check each employee's schedule.
       _ ->
         services |> Enum.reduce(%{}, fn { n, s }, map ->
-          service = ss |> Enum.filter(&(&1["name"] == s)) |> hd
-          Map.put(map, n, (calendars
-          |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
-          |> Enum.filter(&(&1["appointmentTypeID"] == service["schedule_key"]))
-          |> Enum.filter(&(&1["valid"]))
-          |> length()) > 0)
+          service = (ss |> Enum.filter(&(&1["name"] == s)) |> hd)["schedule_key"]
+          Map.put(map, n, calendars |> employee_can_do?(employee, service))
         end)
     end
+  end
+
+  @doc """
+  PainWeb.BookLive.bookable_genders([], "masculine", %{
+  1 => "90Min Reflexology with Chinese Medicine",
+  2 => "90min Massage",
+  3 => "Cupping",
+  4 => "Wet Cupping" },
+  %{ 1 => "Bin Wang"})
+  """
+  def bookable_genders(calendars, services, employed) do
+    # calendars = @cals
+    all_genders = all_employees() |> Enum.map(&(&1["gender"])) |> Enum.uniq
+    genders_employed = employed |> employed_genders
+    calendars
+    |> genders_by_service(services)
+    |> Enum.reduce(%{}, fn {service_key, genders}, remaining_by_service ->
+      Map.put(remaining_by_service, service_key, all_genders
+      |> Enum.reduce(%{}, fn gender, remaining_in_service ->
+        Map.put(remaining_in_service, gender,
+          genders[gender] - (genders_employed[gender] || 0))
+      end))
+    end)
+  end
+
+  def employed_genders employed do
+    es = all_employees()
+    employed |> Enum.reduce(%{}, fn {_, e}, genders ->
+      gender = (es |> Enum.find(&(&1["name"] == e)))["gender"]
+      Map.update(genders, gender, 1, &(&1 + 1))
+    end) |> IO.inspect
+  end
+
+  def genders_by_service calendars, services do
+    ss = all_services()
+    es = all_employees()
+    gs = es |> Enum.map(&(&1["gender"])) |> Enum.uniq
+
+    services |> Enum.reduce(%{}, fn { n, s }, by_service ->
+      service = (ss |> Enum.filter(&(&1["name"] == s)) |> hd)["schedule_key"]
+      bookable_genders = gs |> Enum.reduce(%{}, fn gender, bookable_by_gender ->
+        Map.put(bookable_by_gender, gender,
+          es
+          |> Enum.filter(fn employee -> calendars |> employee_can_do?(employee, service) end)
+          |> Enum.filter(fn employee -> employee["gender"] == gender end)
+          |> length
+        )
+      end)
+      Map.put(by_service, n, bookable_genders)
+    end) |> IO.inspect
+  end
+
+  def employee_can_do?(calendars, employee, service) do
+    (calendars
+    |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
+    |> Enum.filter(&(&1["appointmentTypeID"] == service))
+    |> Enum.filter(&(&1["valid"]))
+    |> length()
+    ) > 0
   end
 
   def render(assigns) do
@@ -221,11 +276,23 @@ defmodule PainWeb.BookLive do
               <ServiceMap {=@services} />
 
               <Choices {=@number} choices={@employed} accion="employ" name="_any"
+              labels={@calendars |> bookable_genders(@services, @employed)
+                |> Enum.reduce(%{}, fn {n, g}, by_service ->
+                Map.put(by_service, n, Map.values(g) |> Enum.reduce(0, &(&1 + &2)))
+                end)}
               ><span class="employ-generic">No preference</span></Choices>
+
               <Choices {=@number} choices={@employed} accion="employ" name="_masc"
-              ><span class="employ-generic">Any (masculine)</span></Choices>
+              labels={@calendars |> bookable_genders(@services, @employed)
+                |> Enum.reduce(%{}, fn {n, g}, by_service ->
+                  Map.put(by_service, n, g["masculine"]) end)}
+              ><span class="employ-generic">Any - masculine</span></Choices>
+
               <Choices {=@number} choices={@employed} accion="employ" name="_fem"
-              ><span class="employ-generic">Any (feminine)</span></Choices>
+              labels={@calendars |> bookable_genders(@services, @employed)
+                |> Enum.reduce(%{}, fn {n, g}, by_service ->
+                  Map.put(by_service, n, g["feminine"]) end)}
+              ><span class="employ-generic">Any - feminine</span></Choices>
 
               {#for employee <- all_employees()}
               <Employee {=employee} id={employee["name"]} {=@display_bios}
