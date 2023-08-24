@@ -101,15 +101,11 @@ defmodule PainWeb.BookLive do
     |> elem(1)
   end
 
-  def employee_keys do
-    all_employees() |> Enum.map(&(&1["schedule_key"]))
-  end
+  def employee_keys, do: all_employees() |> Enum.map(&(&1["schedule_key"]))
 
   def schedule_calendars(schedule, assigns) do
     (schedule <> Pain.Schedule.ending)
-    |> check_blocks_on_calendars(
-      assigns[:services] |> service_keys(),
-      employee_keys())
+    |> check_blocks_on_calendars(assigns[:services] |> service_keys, employee_keys())
   end
 
   def employee_bookable?(calendars, employee, services, employed) do
@@ -128,7 +124,7 @@ defmodule PainWeb.BookLive do
   end
 
   @doc """
-  PainWeb.BookLive.bookable_by_gender([], %{
+  PainWeb.BookLive.bookable_by_gender(cals, %{
   1 => "90Min Reflexology with Chinese Medicine",
   2 => "90min Massage",
   3 => "Cupping",
@@ -136,7 +132,6 @@ defmodule PainWeb.BookLive do
   %{ 1 => "Bin Wang"})
   """
   def bookable_by_gender(calendars, services, employed) do
-    # calendars = @cals
     calendars
     |> bookable_employees_by_service(services)
     |> Enum.reduce(%{}, fn {n, employees}, remaining ->
@@ -167,14 +162,13 @@ defmodule PainWeb.BookLive do
   end
 
   @doc """
-  PainWeb.BookLive.bookable_employees_by_service([], %{
+  PainWeb.BookLive.bookable_employees_by_service(cals, %{
   1 => "90Min Reflexology with Chinese Medicine",
   2 => "90min Massage",
   3 => "Cupping",
   4 => "Wet Cupping" })
   """
   def bookable_employees_by_service calendars, services do
-    # calendars = @cals
     ss = all_services()
     es = all_employees()
 
