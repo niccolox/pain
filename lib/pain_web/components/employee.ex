@@ -6,6 +6,7 @@ defmodule PainWeb.Components.Employee do
   prop employ, :event, required: true
   prop choices, :map, default: %{}
   prop number, :integer, default: 1
+  prop display_bios, :boolean, default: true
 
   def render(assigns) do
     ~F"""
@@ -21,7 +22,9 @@ defmodule PainWeb.Components.Employee do
       <h2>{@employee["name"]}</h2>
       <:summary>
         <img src={@employee["image"]} />
-        <p>{@employee["biography"]}</p>
+        <p>{if @display_bios, do: @employee["biography"],
+          else: Squish.pare(@employee["biography"], size: 160)}
+        </p>
       </:summary>
     </Choices>
     """

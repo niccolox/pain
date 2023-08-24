@@ -18,6 +18,7 @@ defmodule PainWeb.BookLive do
   data employed, :map, default: %{}
   data schedule, :string, default: nil
   data calendars, :map, default: %{}
+  data display_bios, :boolean, default: true
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -45,6 +46,9 @@ defmodule PainWeb.BookLive do
     |> assign(:calendars, params["shape"] |> schedule_calendars(socket.assigns))
     }
   end
+
+  def handle_event("render_bios", params, socket), do:
+    {:noreply, socket |> assign(:display_bios, params["shape"]) }
 
   def classed_services do
     {:ok, s} = (
@@ -116,7 +120,7 @@ defmodule PainWeb.BookLive do
         top: 4rem;
         width: 100vw;
       }
-      hr { margin: 2rem 0 2rem; }
+      hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       .employ-generic { align-self: center; }
     </style>
@@ -177,12 +181,14 @@ defmodule PainWeb.BookLive do
               <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
               <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
               </ul>
-              <p>Please choose your {ngettext("therapist", "therapists", @number)} and finish booking.</p>
             </Accion>
             <hr/>
 
             {#if map_size(@employed) < @number}
-              <h2>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</h2>
+              <Accion accion={if @display_bios, do: "Hide bio", else: "Display bio"}
+                click="render_bios" shape={!@display_bios}>
+                <h2>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</h2>
+              </Accion>
 
               <ServiceMap {=@services} />
 
@@ -194,7 +200,8 @@ defmodule PainWeb.BookLive do
               ><span class="employ-generic">Any (feminine)</span></Choices>
 
               {#for employee <- employees()}
-                <Employee {=employee} id={employee["name"]} employ="employ" choices={@employed} {=@number} />
+              <Employee {=employee} id={employee["name"]} {=@display_bios}
+                employ="employ" choices={@employed} {=@number} />
               {#else}<p>Seems like an error has occurred.</p>{/for}
             {#else}
               <Accion accion="Change" click="clear_employees" shape="">
