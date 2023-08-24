@@ -16,9 +16,23 @@ defmodule PainWeb.BookLive do
   data open_class, :string, default: ""
   data services, :map, default: %{}
   data employed, :map, default: %{}
-  data schedule, :string, default: nil
+  data schedule, :string, default: nil # "2023-08-28T14:00"
   data calendars, :map, default: %{}
   data display_bios, :boolean, default: true
+
+  def handle_event("bypass", _, socket) do
+    {:noreply, socket |> assign(%{
+      number: 4,
+      services: %{
+        1 => "90Min Reflexology with Chinese Medicine",
+        2 => "90min Massage",
+        3 => "Cupping",
+        4 => "Wet Cupping"
+      },
+      schedule: "2023-08-28T14:00",
+      employed: %{1 => "_fem", 2 => "_masc", 3 => "Andy Ji", 4 => "Bin Wang"}
+    })}
+  end
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -52,6 +66,12 @@ defmodule PainWeb.BookLive do
 
   def handle_event("render_bios", params, socket), do:
     {:noreply, socket |> assign(:display_bios, params["shape"]) }
+
+  def handle_event("book", _, socket) do
+    socket.assigns
+    |> Map.take(~w[ services employed schedule ])
+    |> Pain.Order.book()
+  end
 
   def classed_services do
     {:ok, s} = (
@@ -150,7 +170,6 @@ defmodule PainWeb.BookLive do
     |> bookable_by_gender(services, employed)
     |> Enum.reduce(%{}, fn {n, g}, by_service ->
       Map.put(by_service, n, decide.(Map.values(g) |> Enum.reduce(0, &(&1 + &2)))) end)
-    |> IO.inspect
   end
 
   def bookable_as_gender(calendars, services, employed, gender, decide) do
@@ -158,7 +177,6 @@ defmodule PainWeb.BookLive do
     |> bookable_by_gender(services, employed)
     |> Enum.reduce(%{}, fn {n, g}, by_service ->
       Map.put(by_service, n, decide.(g[gender] || 0)) end)
-    |> IO.inspect
   end
 
   @doc """
@@ -177,7 +195,7 @@ defmodule PainWeb.BookLive do
       Map.put(by_service, n, es
       |> Enum.filter(fn employee -> calendars |> employee_can_do?(employee, service_key) end)
       |> Enum.map(&(Map.take(&1, ~w[name gender])))
-      ) end) |> IO.inspect
+      ) end)
   end
 
   def employee_can_do?(calendars, employee, service_key) do
@@ -206,8 +224,16 @@ defmodule PainWeb.BookLive do
       }
       hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
+      ul.services li { margin-bottom: 1rem; }
       .employ-generic { align-self: center; }
+      .bypass { width: 40rem; margin: auto; }
     </style>
+
+    {#if System.get_env("ORDER_BYPASS")}
+      <div class="bypass"><Accion accion="Bypass" click="bypass">
+        In a hurry? Use a pre-made order.
+      </Accion></div>
+    {/if}
 
     <div class="order">
       <Card rounded>
@@ -245,11 +271,11 @@ defmodule PainWeb.BookLive do
             <h2>You are booking:</h2>
           </Accion>
 
-          <ul>{#for service <- chosen_services(assigns)}
+          <ul class="services">{#for service <- chosen_services(assigns)}
             <li>
               {service["name"]}
               {#if service["hanyu"]} / {service["hanyu"]}{/if}
-              {service["duracion"]}
+            <br/>{service["duracion"]}
             </li>
           {/for}</ul>
 
@@ -315,7 +341,7 @@ defmodule PainWeb.BookLive do
 
               <hr/>
 
-              <Accion click="book" key="book"
+              <Accion click="book" key="book" classes={["btn-primary"]}
                 accion={"Book your #{ngettext("appointment", "appointments", @number)}"} >
                 <h2>Please proceed once you're ready.</h2>
               </Accion>
