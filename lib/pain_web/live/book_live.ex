@@ -128,59 +128,68 @@ defmodule PainWeb.BookLive do
   end
 
   @doc """
-  PainWeb.BookLive.bookable_genders([], "masculine", %{
+  PainWeb.BookLive.bookable_by_gender([], %{
   1 => "90Min Reflexology with Chinese Medicine",
   2 => "90min Massage",
   3 => "Cupping",
   4 => "Wet Cupping" },
   %{ 1 => "Bin Wang"})
   """
-  def bookable_genders(calendars, services, employed) do
+  def bookable_by_gender(calendars, services, employed) do
     # calendars = @cals
-    all_genders = all_employees() |> Enum.map(&(&1["gender"])) |> Enum.uniq
-    genders_employed = employed |> employed_genders
     calendars
-    |> genders_by_service(services)
-    |> Enum.reduce(%{}, fn {service_key, genders}, remaining_by_service ->
-      Map.put(remaining_by_service, service_key, all_genders
-      |> Enum.reduce(%{}, fn gender, remaining_in_service ->
-        Map.put(remaining_in_service, gender,
-          genders[gender] - (genders_employed[gender] || 0))
+    |> bookable_employees_by_service(services)
+    |> Enum.reduce(%{}, fn {n, employees}, remaining ->
+      Map.put(remaining, n, employees
+      |> Enum.filter(&(!Enum.member?(Map.values(employed), &1["name"]))))
+    end)
+    |> Enum.reduce(%{}, fn {n, employees}, by_service ->
+      Map.put(by_service, n, employees |> Enum.reduce(%{}, fn employee, by_gender ->
+        Map.update(by_gender, employee["gender"], 1, &(&1+1))
       end))
     end)
   end
 
-  def employed_genders employed do
-    es = all_employees()
-    employed |> Enum.reduce(%{}, fn {_, e}, genders ->
-      gender = (es |> Enum.find(&(&1["name"] == e)))["gender"]
-      Map.update(genders, gender, 1, &(&1 + 1))
-    end) |> IO.inspect
+  def bookable_any(calendars, services, employed, decide) do
+    calendars
+    |> bookable_by_gender(services, employed)
+    |> Enum.reduce(%{}, fn {n, g}, by_service ->
+      Map.put(by_service, n, decide.(Map.values(g) |> Enum.reduce(0, &(&1 + &2)))) end)
+    |> IO.inspect
   end
 
-  def genders_by_service calendars, services do
+  def bookable_as_gender(calendars, services, employed, gender, decide) do
+    calendars
+    |> bookable_by_gender(services, employed)
+    |> Enum.reduce(%{}, fn {n, g}, by_service ->
+      Map.put(by_service, n, decide.(g[gender] || 0)) end)
+    |> IO.inspect
+  end
+
+  @doc """
+  PainWeb.BookLive.bookable_employees_by_service([], %{
+  1 => "90Min Reflexology with Chinese Medicine",
+  2 => "90min Massage",
+  3 => "Cupping",
+  4 => "Wet Cupping" })
+  """
+  def bookable_employees_by_service calendars, services do
+    # calendars = @cals
     ss = all_services()
     es = all_employees()
-    gs = es |> Enum.map(&(&1["gender"])) |> Enum.uniq
 
     services |> Enum.reduce(%{}, fn { n, s }, by_service ->
-      service = (ss |> Enum.filter(&(&1["name"] == s)) |> hd)["schedule_key"]
-      bookable_genders = gs |> Enum.reduce(%{}, fn gender, bookable_by_gender ->
-        Map.put(bookable_by_gender, gender,
-          es
-          |> Enum.filter(fn employee -> calendars |> employee_can_do?(employee, service) end)
-          |> Enum.filter(fn employee -> employee["gender"] == gender end)
-          |> length
-        )
-      end)
-      Map.put(by_service, n, bookable_genders)
-    end) |> IO.inspect
+      service_key = (ss |> Enum.filter(&(&1["name"] == s)) |> hd)["schedule_key"]
+      Map.put(by_service, n, es
+      |> Enum.filter(fn employee -> calendars |> employee_can_do?(employee, service_key) end)
+      |> Enum.map(&(Map.take(&1, ~w[name gender])))
+      ) end) |> IO.inspect
   end
 
-  def employee_can_do?(calendars, employee, service) do
+  def employee_can_do?(calendars, employee, service_key) do
     (calendars
     |> Enum.filter(&(&1["calendarID"] == employee["schedule_key"]))
-    |> Enum.filter(&(&1["appointmentTypeID"] == service))
+    |> Enum.filter(&(&1["appointmentTypeID"] == service_key))
     |> Enum.filter(&(&1["valid"]))
     |> length()
     ) > 0
@@ -276,22 +285,18 @@ defmodule PainWeb.BookLive do
               <ServiceMap {=@services} />
 
               <Choices {=@number} choices={@employed} accion="employ" name="_any"
-              labels={@calendars |> bookable_genders(@services, @employed)
-                |> Enum.reduce(%{}, fn {n, g}, by_service ->
-                Map.put(by_service, n, Map.values(g) |> Enum.reduce(0, &(&1 + &2)))
-                end)}
+                labels={@calendars |> bookable_any(@services, @employed, &(&1))}
+                enabled={@calendars |> bookable_any(@services, @employed, &(&1 > 0))}
               ><span class="employ-generic">No preference</span></Choices>
 
               <Choices {=@number} choices={@employed} accion="employ" name="_masc"
-              labels={@calendars |> bookable_genders(@services, @employed)
-                |> Enum.reduce(%{}, fn {n, g}, by_service ->
-                  Map.put(by_service, n, g["masculine"]) end)}
+                labels={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1))}
+                enabled={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1 > 0))}
               ><span class="employ-generic">Any - masculine</span></Choices>
 
               <Choices {=@number} choices={@employed} accion="employ" name="_fem"
-              labels={@calendars |> bookable_genders(@services, @employed)
-                |> Enum.reduce(%{}, fn {n, g}, by_service ->
-                  Map.put(by_service, n, g["feminine"]) end)}
+                labels={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1))}
+                enabled={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1 > 0))}
               ><span class="employ-generic">Any - feminine</span></Choices>
 
               {#for employee <- all_employees()}
