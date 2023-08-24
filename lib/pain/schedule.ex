@@ -13,10 +13,6 @@ defmodule Pain.Schedule do
 
   def today, do: now() |> DateTime.to_date()
   def now do
-    # On initial app load, tzdata needs to pull time zones,
-    # meaning the only time zone on launch is UTC.
-    # Proper time zones are loaded prior to any calls,
-    # though a backup is needed to compile `PainWeb.Components.Schedule`.
     case DateTime.now("America/New_York") do
       {:ok, c } -> c
       {:error, _ } -> DateTime.utc_now()

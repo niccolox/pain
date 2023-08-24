@@ -9,6 +9,7 @@ employees:
       gentle techniques to manipulate pressure points. In his free time, he
       enjoys fishing with friends.
     schedule_key: 7733522
+    gender: masculine
   - name: Bin Wang
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-4351609.png?1672163227"
     biography: |
@@ -19,6 +20,7 @@ employees:
       have accumulated a wealth of knowledge. I am willing to share my
       experience with you, hoping to help more people get well.
     schedule_key: 4351609
+    gender: feminine
   - name: Harry Qiao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-8178118.jpg?1680975338"
     biography: |
@@ -29,6 +31,7 @@ employees:
       to treat various pain symptoms, insomnia, and more. His approach is
       steady, comfortable, and effective. In his free time, he enjoys cooking.
     schedule_key: 8178118
+    gender: masculine
   - name: Lisa Lee
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733431.jpg?1680975387"
     biography: |
@@ -39,6 +42,7 @@ employees:
       Chinese medical techniques. Lisa's biggest wish  is to help more people
       achieve better health.
     schedule_key: 7733431
+    gender: feminine
   - name: Lucy Gao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733550.jpg?1680975404"
     biography: |
@@ -49,6 +53,7 @@ employees:
       skills but also promoting Chinese medical treatments abroad by bringing
       them to the United States.
     schedule_key: 7733550
+    gender: feminine
   - name: Steven Zheng
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7822447.jpg?1680975439"
     biography: |
@@ -58,6 +63,7 @@ employees:
       Medicine and has over a decade of work experience. In his spare time, he
       enjoys calligraphy art.
     schedule_key: 7822447
+    gender: masculine
   - name: Yo-Yo Liu
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7832226.jpg?1680975457"
     biography: |
@@ -67,3 +73,4 @@ employees:
       strong and robust technique not only make you feel comfortable and
       relaxed, but also alleviate pain and stress. 
     schedule_key: 7832226
+    gender: feminine

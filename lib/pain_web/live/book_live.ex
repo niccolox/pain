@@ -9,11 +9,11 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Schedule
 
-  data number, :integer, default: 2
+  data number, :integer, default: 1
   data open_class, :string, default: ""
-  data services, :map, default: %{ 1 => "Cupping", 2 => "Wet Cupping" }
+  data services, :map, default: %{}
   data employed, :map, default: %{}
-  data schedule, :string, default: "2023-08-24T17:00:00Z-04:00"
+  data schedule, :string, default: nil
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
@@ -165,9 +165,9 @@ defmodule PainWeb.BookLive do
 
               <Choices {=@number} choices={@employed} accion="employ" name="_any"
               >No preference</Choices>
-              <Choices {=@number} choices={@employed} accion="employ" name="_male"
+              <Choices {=@number} choices={@employed} accion="employ" name="_masc"
               >Any male</Choices>
-              <Choices {=@number} choices={@employed} accion="employ" name="_female"
+              <Choices {=@number} choices={@employed} accion="employ" name="_fem"
               >Any female</Choices>
 
               <hr/>
@@ -181,8 +181,8 @@ defmodule PainWeb.BookLive do
                 <ul>{#for employee <- Map.values(@employed)}
                   <li>{#case employee}
                   {#match "_any"}No preference
-                  {#match "_male"}Any male
-                  {#match "_female"}Any female
+                  {#match "_masc"}Any male
+                  {#match "_fem"}Any female
                   {#match name}{name}
                   {/case}</li>
                 {/for}</ul>
