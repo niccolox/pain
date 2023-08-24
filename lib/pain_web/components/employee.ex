@@ -10,6 +10,7 @@ defmodule PainWeb.Components.Employee do
   def render(assigns) do
     ~F"""
     <style>
+      h2 { align-self: center; }
       img { max-width: 40%; margin-right: 1rem; }
       @media (max-width: 1080px) {
         img { float: left; }

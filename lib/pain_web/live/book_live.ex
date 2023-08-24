@@ -10,6 +10,7 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Accion
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Schedule
+  alias PainWeb.Components.ServiceMap
 
   data number, :integer, default: 1
   data open_class, :string, default: ""
@@ -104,6 +105,7 @@ defmodule PainWeb.BookLive do
     ~F"""
     <style>
       section { margin: 1rem 0 1rem; }
+      h2 { font-weight: 600; }
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
@@ -116,6 +118,7 @@ defmodule PainWeb.BookLive do
       }
       hr { margin: 2rem 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
+      .employ-generic { align-self: center; }
     </style>
 
     <div class="order">
@@ -124,7 +127,7 @@ defmodule PainWeb.BookLive do
           Book an appointment
         </:header>
 
-        <p>How many people are you booking for?</p>
+        <h2>How many people are you booking for?</h2>
 
         <section id="number-people">
           <div class="join">
@@ -141,7 +144,7 @@ defmodule PainWeb.BookLive do
 
         <hr/>
         {#if map_size(@services) < @number}
-          <p>How can we help you?</p>
+          <h2>How can we help you?</h2>
 
           <section class="join join-vertical">
             {#for class <- classed_services()["classes"]}
@@ -150,7 +153,7 @@ defmodule PainWeb.BookLive do
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
         {#else}
-          <p>You are booking:</p>
+          <h2>You are booking:</h2>
 
           <Accion accion="Change" click="clear_services">
             <ul>{#for service <- chosen_services(assigns)}
@@ -169,7 +172,7 @@ defmodule PainWeb.BookLive do
             {=employee_keys()} service_keys={service_keys(@services)} />
           {#else}
             <Accion accion="Change" click="clear_schedule" shape="">
-              Your appointment is going to be:
+            <h2>Your appointment is going to be:</h2>
               <ul>
               <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
               <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
@@ -179,16 +182,16 @@ defmodule PainWeb.BookLive do
             <hr/>
 
             {#if map_size(@employed) < @number}
-              <p>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</p>
+              <h2>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</h2>
+
+              <ServiceMap {=@services} />
 
               <Choices {=@number} choices={@employed} accion="employ" name="_any"
-              >No preference</Choices>
+              ><span class="employ-generic">No preference</span></Choices>
               <Choices {=@number} choices={@employed} accion="employ" name="_masc"
-              >Any male</Choices>
+              ><span class="employ-generic">Any (masculine)</span></Choices>
               <Choices {=@number} choices={@employed} accion="employ" name="_fem"
-              >Any female</Choices>
-
-              <hr/>
+              ><span class="employ-generic">Any (feminine)</span></Choices>
 
               {#for employee <- employees()}
                 <Employee {=employee} id={employee["name"]} employ="employ" choices={@employed} {=@number} />
@@ -199,8 +202,8 @@ defmodule PainWeb.BookLive do
                 <ul>{#for employee <- Map.values(@employed)}
                   <li>{#case employee}
                   {#match "_any"}No preference
-                  {#match "_masc"}Any male
-                  {#match "_fem"}Any female
+                  {#match "_masc"}Any (masculine)
+                  {#match "_fem"}Any (feminine)
                   {#match name}{name}
                   {/case}</li>
                 {/for}</ul>
