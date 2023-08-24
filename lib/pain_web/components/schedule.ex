@@ -16,9 +16,11 @@ defmodule PainWeb.Components.Schedule do
   def update(assigns, socket) do
     {:ok, socket
     |> assign(assigns)
-    |> assign(:possible_by_day, message() |> check_blocks(
-      assigns[:service_keys], assigns[:employee_keys], this_month()))
-    }
+    |> assign(:possible_by_day, check_blocks(
+      service_demand(assigns[:service_keys]),
+      assigns[:employee_keys],
+      this_month())
+    )}
   end
 
   def handle_event("schedule_day", params, socket) do
@@ -27,12 +29,10 @@ defmodule PainWeb.Components.Schedule do
 
   def handle_event("schedule_month", params, socket) do
     {:noreply, socket
-    |> assign(:possible_by_day,
-      message() |> check_blocks(
-        socket.assigns[:service_keys],
-        socket.assigns[:employee_keys],
-        month("#{params["year"]}-#{params["month"]}"))
-    )
+    |> assign(:possible_by_day, check_blocks(
+      socket.assigns[:service_keys],
+      socket.assigns[:employee_keys],
+      month("#{params["year"]}-#{params["month"]}")))
     |> push_event("color", %{})
     }
   end

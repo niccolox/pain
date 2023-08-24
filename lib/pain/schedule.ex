@@ -1,5 +1,5 @@
 defmodule Pain.Schedule do
-  def message do
+  def headers do
     auth = (
       ["SCHEDULE_USER", "SCHEDULE_KEY"]
       |> Enum.map(&System.get_env/1)
@@ -29,32 +29,39 @@ defmodule Pain.Schedule do
     Date.range(beginning, beginning |> Date.end_of_month)
   end
 
+  def service_demand(service_keys) do
+    service_keys
+    |> Enum.reduce(%{}, fn x, acc -> Map.update(acc, x, 1, &(&1 + 1)) end)
+  end
+
   @doc """
   import Pain.Schedule
-  message() |> check_blocks(
-    [ 39928578, 39928780, 39931669, ],
+  check_blocks(
+    service_demand([ 39928578, 39928780, 39931669, ]),
     [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
     this_month())
   """
-  def check_blocks headers, service_keys, employee_keys, range do
-    keys = service_keys |> Enum.reduce(%{}, fn x, acc ->
-      Map.update(acc, x, 1, &(&1 + 1)) end)
+  def check_blocks demand, employee_keys, range do
     (range |> Parallel.map(fn day ->
-      keys |> Parallel.map(fn { key, demand } ->
-        employee_keys |> Enum.map(fn employee ->
-          search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{key}&calendarID=#{employee}"
-          case (HTTPoison.get!(search_hours, headers) |> Map.get(:body) |> Jason.decode) do
-            {:error, r} -> IO.inspect r; []
-            {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
-            {:ok, r } -> r
-          end
-        end)
+      demand |> Parallel.map(fn { service, demand } ->
+        check_calendar_day_service(service, employee_keys, day)
         |> reduce_calendars
         |> Enum.filter(fn { _, num } -> num >= demand end)
         |> Enum.map(fn { block, _ } -> block end)
       end)
       |> reduce_blocks
     end))
+  end
+
+  def check_calendar_day_service service, employee_keys, day do
+    employee_keys |> Enum.map(fn employee ->
+      search_hours = "https://acuityscheduling.com/api/v1/availability/times?date=#{day}&appointmentTypeID=#{service}&calendarID=#{employee}"
+      case (HTTPoison.get!(search_hours, headers()) |> Map.get(:body) |> Jason.decode) do
+        {:error, r} -> IO.inspect r; []
+        {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
+        {:ok, r } -> r
+      end
+    end)
   end
 
   def reduce_calendars calendars do
@@ -84,8 +91,8 @@ defmodule Pain.Schedule do
 
   @doc """
   import Pain.Schedule
-  message() |> check_blocks(
-    [ 39928578, 39928780, 39931669, ],
+  check_blocks(
+    service_demand([ 39928578, 39928780, 39931669, ]),
     [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
     this_month())
   |> open_blocks("2023-08-30")
