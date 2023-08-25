@@ -43,8 +43,13 @@ defmodule PainWeb.BookLive do
   def handle_event("choose_service", params, socket),
     do: {:noreply, update(socket, :services,
     &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
-  def handle_event("clear_services", _, socket),
-    do: {:noreply, assign(socket, :services, %{})}
+  def handle_event("clear_services", _, socket) do
+    {:noreply, socket
+    |> assign(:services, %{})
+    |> assign(:schedule, nil)
+    |> assign(:employed, %{})
+    }
+  end
 
   def handle_event("employ", params, socket) do
     {:noreply, update(socket, :employed, fn employed ->
@@ -52,11 +57,18 @@ defmodule PainWeb.BookLive do
         &(if &1 == params["name"], do: nil, else: params["name"]))
     end)}
   end
-  def handle_event("clear_employees", _, socket),
-    do: {:noreply, assign(socket, :employed, %{})}
 
-  def handle_event("clear_schedule", _, socket),
-    do: {:noreply, assign(socket, :schedule, nil)}
+  def handle_event("clear_employees", _, socket) do
+    {:noreply, socket |> assign(:employed, %{}) }
+  end
+
+  def handle_event("clear_schedule", _, socket) do
+    {:noreply, socket
+    |> assign(:schedule, nil)
+    |> assign(:employed, %{})
+    }
+  end
+
   def handle_event("schedule", params, socket) do
     {:noreply, socket
     |> assign(:schedule, params["shape"])
