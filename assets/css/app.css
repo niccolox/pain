@@ -1,9 +1,9 @@
 /* Import scoped CSS rules for components */
 @import "./_components.css";
+@import "./main.css";
 
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 @import "flatpickr/dist/flatpickr.min.css"
-/* This file is for your main application CSS */
