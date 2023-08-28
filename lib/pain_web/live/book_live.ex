@@ -11,6 +11,8 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Schedule
   alias PainWeb.Components.ServiceMap
+  alias PainWeb.Components.BodyMap
+  import PainWeb.CoreComponents, only: [modal: 1]
 
   data number, :integer, default: 1
   data open_class, :string, default: ""
@@ -19,6 +21,25 @@ defmodule PainWeb.BookLive do
   data schedule, :string, default: nil # "2023-08-28T14:00"
   data calendars, :map, default: %{}
   data display_bios, :boolean, default: true
+  data limbs, :map, default: %{}
+
+  def mount(params, _session, socket) do
+    {:ok, socket
+    |> assign(params)
+    |> assign(%{
+      number: 4,
+      services: %{
+        1 => "90Min Reflexology with Chinese Medicine",
+        # 2 => "90min Massage",
+        # 3 => "Cupping",
+        # 4 => "Wet Cupping"
+      },
+      limbs: %{
+        1 => "_choose",
+      },
+    })
+    }
+  end
 
   def handle_event("bypass", _, socket) do
     {:noreply, socket |> assign(%{
@@ -36,16 +57,26 @@ defmodule PainWeb.BookLive do
 
   def handle_event("number", params, socket),
     do: {:noreply, assign(socket, :number, String.to_integer params["num"])}
-
   def handle_event("open_class", params, socket),
     do: {:noreply, assign(socket, :open_class, params["name"])}
 
-  def handle_event("choose_service", params, socket),
-    do: {:noreply, update(socket, :services,
-    &(Map.put(&1, String.to_integer(params["num"]), params["name"])))}
+  def handle_event("choose_service", params, socket) do
+    num = String.to_integer(params["num"])
+    {:noreply, socket
+    |> update(:services, &(Map.put(&1, num, params["name"])))
+    |> update(:limbs, &(Map.put(&1, num, "_choose")))
+    }
+  end
+
+  def handle_event("choose_limb", params, socket) do
+    num = String.to_integer(params["num"])
+    {:noreply, socket |> update(:limbs, &(Map.put(&1, num, params["limb"]))) }
+  end
+
   def handle_event("clear_services", _, socket) do
     {:noreply, socket
     |> assign(:services, %{})
+    |> assign(:limbs, %{})
     |> assign(:schedule, nil)
     |> assign(:employed, %{})
     }
@@ -110,13 +141,15 @@ defmodule PainWeb.BookLive do
   end
 
   def chosen_services(assigns) do
-    classed_services()["classes"]
-    |> Enum.map(fn class ->
-      Enum.map(class["services"],
-        &(if &1["hanyu"], do: &1, else: Map.put(&1, "hanyu", class["hanyu"])))
-      |> Enum.filter(&(assigns[:services] |> Map.values() |> Enum.member?(&1["name"])))
+    all = classed_services()["classes"] |> Enum.map(fn class ->
+      class["services"] |> Enum.map(&(if &1["hanyu"], do: &1,
+      else: Map.put(&1, "hanyu", class["hanyu"])))
+    end) |> List.flatten
+
+    assigns[:services]
+    |> Enum.reduce(%{}, fn { n, name }, chosen ->
+      Map.put(chosen, n, all |> Enum.find(&(&1["name"] == name)))
     end)
-    |> List.flatten
   end
 
   def service_keys(services) do
@@ -269,28 +302,32 @@ defmodule PainWeb.BookLive do
         </section>
 
         <hr/>
-        {#if map_size(@services) < @number}
+          {#if (map_size(@services) < @number)
+          || (@limbs |> Map.values |> Enum.member?("_choose") )}
           <h2>How can we help you?</h2>
+
+          {explain_services(assigns)}
 
           <section class="join join-vertical">
             {#for class <- classed_services()["classes"]}
-            <Class {=class} id={class["name"]} choose="choose_service" chosen={@services} {=@number}
+            <Class {=class} id={class["name"]}
+              choose="choose_service" chosen={@services} {=@number}
               is_open={@open_class == class["name"]} open="open_class" />
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
+
+          {#for {num, "_choose"} <- @limbs}
+            <.modal id={"choose-limb-#{num}"} show>
+              <h2>Please choose the main area of the body needing help:</h2>
+              <p>Customer # {num} <br/> {@services[num]}</p>
+              <BodyMap choose="choose_limb" number={num} />
+            </.modal>
+          {/for}
         {#else}
           <Accion accion="Change" click="clear_services">
             <h2>You are booking:</h2>
           </Accion>
-
-          <ul class="services">{#for service <- chosen_services(assigns)}
-            <li>
-              {service["name"]}
-              {#if service["hanyu"]} / {service["hanyu"]}{/if}
-            <br/>{service["duracion"]}
-            </li>
-          {/for}</ul>
-
+          {explain_services(assigns)}
           <hr/>
 
           {#if !@schedule}
@@ -353,7 +390,7 @@ defmodule PainWeb.BookLive do
 
               <hr/>
 
-              <Accion click="book" key="book" classes={["btn-primary"]}
+              <Accion click="book" classes={["btn-primary"]}
                 accion={"Book your #{ngettext("appointment", "appointments", @number)}"} >
                 <h2>Please proceed once you're ready.</h2>
               </Accion>
@@ -362,6 +399,29 @@ defmodule PainWeb.BookLive do
         {/if}
       </Card>
     </div>
+    """
+  end
+
+  def explain_services assigns do
+    ~F"""
+    <style>
+      ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
+      li { margin-bottom: 1rem; }
+    </style>
+    <ul class="services">
+    {#for {n, service} <- chosen_services(assigns)}
+      <li>
+        {service["name"]}
+        {#if service["hanyu"]} / {service["hanyu"]}{/if}
+        <br/>{service["duracion"]}
+        <br/>on:
+        {#case @limbs[n]}
+        {#match "_choose"}No position chosen
+        {#match name}{name}
+        {/case}
+      </li>
+    {/for}
+    </ul>
     """
   end
 end
