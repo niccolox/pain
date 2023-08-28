@@ -23,24 +23,6 @@ defmodule PainWeb.BookLive do
   data display_bios, :boolean, default: true
   data limbs, :map, default: %{}
 
-  def mount(params, _session, socket) do
-    {:ok, socket
-    |> assign(params)
-    |> assign(%{
-      number: 4,
-      services: %{
-        1 => "90Min Reflexology with Chinese Medicine",
-        # 2 => "90min Massage",
-        # 3 => "Cupping",
-        # 4 => "Wet Cupping"
-      },
-      limbs: %{
-        1 => "_choose",
-      },
-    })
-    }
-  end
-
   def handle_event("bypass", _, socket) do
     {:noreply, socket |> assign(%{
       number: 4,
@@ -407,6 +389,7 @@ defmodule PainWeb.BookLive do
     <style>
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       li { margin-bottom: 1rem; }
+      a { text-decoration: underline; }
     </style>
     <ul class="services">
     {#for {n, service} <- chosen_services(assigns)}
@@ -415,11 +398,15 @@ defmodule PainWeb.BookLive do
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
         <br/>{service["duracion"]}
         <br/>on:
-        {#case @limbs[n]}
-        {#match "nil"}No body location chosen
-        {#match "_choose"}No body location chosen
-        {#match name}{name}
-        {/case}
+        {#if Enum.member? [nil, "_choose"], @limbs[n]}
+          <a href="#" :on-click="choose_limb" phx-value-num={n} phx-value-limb="_choose">
+          Please choose location on body ->
+          </a>
+        {#else}
+          {@limbs[n]}
+          <a href="#" :on-click="choose_limb" phx-value-num={n} phx-value-limb="_choose">
+          (change)</a>
+        {/if}
       </li>
     {/for}
     </ul>
