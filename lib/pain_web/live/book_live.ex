@@ -416,7 +416,8 @@ defmodule PainWeb.BookLive do
         <br/>{service["duracion"]}
         <br/>on:
         {#case @limbs[n]}
-        {#match "_choose"}No position chosen
+        {#match "nil"}No body location chosen
+        {#match "_choose"}No body location chosen
         {#match name}{name}
         {/case}
       </li>
