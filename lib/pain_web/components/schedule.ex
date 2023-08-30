@@ -47,7 +47,7 @@ defmodule PainWeb.Components.Schedule do
         padding: 0.6rem;
         text-align: center;
       }
-      .inline { display: flex; justify-content: space-around; }
+      .inline { display: flex; justify-content: start; }
       .inline > * { margin: 0.6rem; }
       @media(max-width: 1080px) { .inline {
         flex-direction: column;
@@ -72,19 +72,16 @@ defmodule PainWeb.Components.Schedule do
       |> Enum.reduce(%{}, fn day, all ->
         Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
       end) |> Jason.encode! } >
-      <h4>Please schedule:</h4>
-
-      {#if @process}...loading...{/if}
-
       <div class="inline">
         <div phx-update="ignore">
           <input type="text" id="calendar" :hook="Calendar" phx-target={@myself} />
         </div>
         <div>
-          {#if length(@possible |> open_blocks(@day)) == 0}
-            There are no more openings on {@day}.
+          {#if @process}<span>...loading...</span>
+          {#elseif length(@possible |> open_blocks(@day)) == 0}
+            <span>There are no more openings on {@day}.</span>
           {#else}
-            Please choose a block of time on {@day}.
+            <span>Please choose a block of time on {@day}.</span>
             <div class="blocks">
               {#for {hour, mins} <- (@possible |> open_blocks(@day) |> hour_map())}
                 <div class="hour"><span>{hour}:</span>

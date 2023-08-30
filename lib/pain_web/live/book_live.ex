@@ -319,8 +319,9 @@ defmodule PainWeb.BookLive do
           <hr/>
 
           {#if !@schedule}
-          <Schedule id="schedule" schedule="schedule"
-            {=employee_keys()} service_keys={service_keys(@services)} />
+            <h2>Please schedule:</h2>
+            <Schedule id="schedule" schedule="schedule"
+              {=employee_keys()} service_keys={service_keys(@services)} />
           {#else}
             <Accion accion="Change" click="clear_schedule" shape="">
               <h2>Your {ngettext("appointment is", "appointments are", @number)} going to be:</h2>
