@@ -32,7 +32,7 @@ defmodule PainWeb.BookLive do
         3 => "Cupping",
         4 => "Wet Cupping"
       },
-      schedule: "2023-08-28T14:00",
+      schedule: "2023-08-31T19:00",
       employed: %{1 => "_fem", 2 => "_masc", 3 => "Andy Ji", 4 => "Bin Wang"}
     })}
   end
@@ -96,6 +96,12 @@ defmodule PainWeb.BookLive do
     socket.assigns
     |> Map.take(~w[ services employed schedule ])
     |> Pain.Order.book()
+  end
+
+  def handle_info {process, response}, socket do
+    Process.demonitor(process, [:flush])
+    send_update Schedule, id: "schedule", possible: response, process: nil
+    {:noreply, socket}
   end
 
   def classed_services do

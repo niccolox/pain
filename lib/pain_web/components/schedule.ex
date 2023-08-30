@@ -6,9 +6,10 @@ defmodule PainWeb.Components.Schedule do
   prop employee_keys, :list, default: []
   prop schedule, :event, required: true
 
-  data possible_by_day, :map, default: %{}
+  data possible, :map, default: %{}
   data day, :string
   data block, :string, default: nil
+  data process, :reference, default: nil
 
   def mount(socket),
     do: {:ok, socket |> assign(:day, today() |> Date.to_string) }
@@ -16,11 +17,12 @@ defmodule PainWeb.Components.Schedule do
   def update(assigns, socket) do
     {:ok, socket
     |> assign(assigns)
-    |> assign(:possible_by_day, check_blocks(
-      service_demand(assigns[:service_keys]),
-      assigns[:employee_keys],
-      this_month())
-    )}
+    |> assign(if assigns[:possible], do: %{}, else: %{
+      process: Task.async(fn -> check_blocks(
+        service_demand(assigns[:service_keys]), assigns[:employee_keys], this_month())
+      end) })
+    |> push_event("color", %{})
+    }
   end
 
   def handle_event("schedule_day", params, socket) do
@@ -29,11 +31,10 @@ defmodule PainWeb.Components.Schedule do
 
   def handle_event("schedule_month", params, socket) do
     {:noreply, socket
-    |> assign(:possible_by_day, check_blocks(
-      socket.assigns[:service_keys],
+    |> assign(:process, Task.async(fn -> check_blocks(
+      service_demand(socket.assigns[:service_keys]),
       socket.assigns[:employee_keys],
-      month("#{params["year"]}-#{params["month"]}")))
-    |> push_event("color", %{})
+      month("#{params["year"]}-#{params["month"]}")) end))
     }
   end
 
@@ -66,24 +67,26 @@ defmodule PainWeb.Components.Schedule do
     </style>
 
     <section class="schedule" data-day={today()} data-possible={
-      @possible_by_day
+      @possible
       |> Enum.filter(&(length(&1) > 0))
       |> Enum.reduce(%{}, fn day, all ->
         Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
       end) |> Jason.encode! } >
       <h4>Please schedule:</h4>
 
+      {#if @process}...loading...{/if}
+
       <div class="inline">
         <div phx-update="ignore">
           <input type="text" id="calendar" :hook="Calendar" phx-target={@myself} />
         </div>
         <div>
-          {#if length(@possible_by_day |> open_blocks(@day)) == 0}
+          {#if length(@possible |> open_blocks(@day)) == 0}
             There are no more openings on {@day}.
           {#else}
             Please choose a block of time on {@day}.
             <div class="blocks">
-              {#for {hour, mins} <- (@possible_by_day |> open_blocks(@day) |> hour_map())}
+              {#for {hour, mins} <- (@possible |> open_blocks(@day) |> hour_map())}
                 <div class="hour"><span>{hour}:</span>
                 {#for min <- mins}
                   <div role="link" class="min" :on-click={@schedule}
