@@ -95,16 +95,17 @@ defmodule PainWeb.BookLive do
   def handle_event("render_bios", params, socket), do:
     {:noreply, socket |> assign(:display_bios, params["shape"]) }
 
-  def handle_event("book", _, socket) do
-    socket.assigns
-    |> Map.take(~w[ services employed schedule ])
-    |> Pain.Order.book()
-  end
-
   def handle_event("customer", params, socket) do
     {:noreply, socket
     |> assign(:customer, params |> Map.take(~w[name surname phone email reference]))
     }
+  end
+
+  def handle_event("book", _, socket) do
+    socket.assigns
+    |> Map.take(~w[ employed schedule customer limbs ]a)
+    |> Pain.Order.book(chosen_services(socket.assigns[:services]))
+    {:noreply, socket}
   end
 
   def handle_info {process, response}, socket do
@@ -137,13 +138,13 @@ defmodule PainWeb.BookLive do
     ); e["employees"]
   end
 
-  def chosen_services(assigns) do
+  def chosen_services(services) do
     all = classed_services()["classes"] |> Enum.map(fn class ->
       class["services"] |> Enum.map(&(if &1["hanyu"], do: &1,
       else: Map.put(&1, "hanyu", class["hanyu"])))
     end) |> List.flatten
 
-    assigns[:services]
+    services
     |> Enum.reduce(%{}, fn { n, name }, chosen ->
       Map.put(chosen, n, all |> Enum.find(&(&1["name"] == name)))
     end)
@@ -253,7 +254,7 @@ defmodule PainWeb.BookLive do
     ~F"""
     <style>
       section { margin: 1rem 0 1rem; }
-      h2 { font-weight: 600; }
+      h2 { font-weight: 600; margin-bottom: 1rem; }
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
@@ -274,6 +275,7 @@ defmodule PainWeb.BookLive do
         align-items: center;
         grid-template-columns: auto 1fr;
         grid-gap: 1rem;
+        margin-bottom: 2rem;
       }
       .field { display: contents; }
     </style>
@@ -448,7 +450,7 @@ defmodule PainWeb.BookLive do
       a { text-decoration: underline; }
     </style>
     <ul class="services">
-    {#for {n, service} <- chosen_services(assigns)}
+    {#for {n, service} <- chosen_services(@services)}
       <li>
         {service["name"]}
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
