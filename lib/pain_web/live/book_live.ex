@@ -48,10 +48,14 @@ defmodule PainWeb.BookLive do
 
   def handle_event("choose_service", params, socket) do
     num = String.to_integer(params["num"])
+    service = all_services() |> Enum.filter(& &1["name"] == params["name"]) |> hd |> IO.inspect
+
     {:noreply, socket
     |> update(:services, &(Map.put(&1, num, params["name"])))
-    |> update(:limbs, &(Map.put(&1, num, "_choose")))
-    }
+    |> update(:limbs, & case service["class"] do
+      "Body and Foot Massage" -> Map.put(&1, num, "_choose")
+      _ -> &1
+    end) }
   end
 
   def handle_event("choose_limb", params, socket) do

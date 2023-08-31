@@ -43,7 +43,7 @@ defmodule Pain.Schedule do
     this_month())
   """
   def check_blocks demand, employee_keys, range do
-    (range |> Parallel.map(fn day ->
+    (range |> Enum.take(14) |> Parallel.map(fn day ->
       demand |> Parallel.map(fn { service, demand } ->
         check_calendar_day_service(service, employee_keys, day)
         |> reduce_calendars
