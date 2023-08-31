@@ -5,6 +5,7 @@ defmodule PainWeb.Components.Accion do
   prop click, :event
   prop shape, :string
   prop clicked, :boolean, default: false
+  prop disabled, :boolean, default: false
   prop classes, :css_class, default: {}
 
   slot default
@@ -30,7 +31,7 @@ defmodule PainWeb.Components.Accion do
         <#slot/>
       </div>
 
-      <button :on-click={@click} phx-value-shape={@shape}
+      <button :on-click={@click} phx-value-shape={@shape} {=@disabled}
         class={[@classes | ["btn", "btn-active": @clicked]]} >
         {@accion}
       </button>

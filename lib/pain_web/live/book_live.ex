@@ -12,6 +12,8 @@ defmodule PainWeb.BookLive do
   alias PainWeb.Components.Schedule
   alias PainWeb.Components.ServiceMap
   alias PainWeb.Components.BodyMap
+  alias Surface.Components.Form
+
   import PainWeb.CoreComponents, only: [modal: 1]
 
   data number, :integer, default: 1
@@ -22,6 +24,7 @@ defmodule PainWeb.BookLive do
   data calendars, :map, default: %{}
   data display_bios, :boolean, default: true
   data limbs, :map, default: %{}
+  data customer, :form, default:  %{ "name" => "", "surname" => "", "phone" => "", "email" => "", "reference" => "" }
 
   def handle_event("bypass", _, socket) do
     {:noreply, socket |> assign(%{
@@ -96,6 +99,12 @@ defmodule PainWeb.BookLive do
     socket.assigns
     |> Map.take(~w[ services employed schedule ])
     |> Pain.Order.book()
+  end
+
+  def handle_event("customer", params, socket) do
+    {:noreply, socket
+    |> assign(:customer, params |> Map.take(~w[name surname phone email reference]))
+    }
   end
 
   def handle_info {process, response}, socket do
@@ -260,6 +269,13 @@ defmodule PainWeb.BookLive do
       ul.services li { margin-bottom: 1rem; }
       .employ-generic { align-self: center; }
       .bypass { width: 40rem; margin: auto; }
+      .form {
+        display: grid;
+        align-items: center;
+        grid-template-columns: auto 1fr;
+        grid-gap: 1rem;
+      }
+      .field { display: contents; }
     </style>
 
     {#if System.get_env("ORDER_BYPASS")}
@@ -379,8 +395,41 @@ defmodule PainWeb.BookLive do
 
               <hr/>
 
+              <h2>Nearly done; your information is needed.</h2>
+
+              <Form for={@customer} change="customer"><div class="form">
+                <Form.Field name="name" class="field">
+                  <Form.Label/>
+                  <Form.TextInput class="input input-bordered" value={@customer["name"]} />
+                </Form.Field>
+
+                <Form.Field name="surname" class="field">
+                  <Form.Label/>
+                  <Form.TextInput class="input input-bordered" value={@customer["surname"]} />
+                </Form.Field>
+
+                <Form.Field name="email" class="field">
+                  <Form.Label/>
+                  <Form.EmailInput class="input input-bordered" value={@customer["email"]} />
+                </Form.Field>
+
+                <Form.Field name="phone" class="field">
+                  <Form.Label/>
+                  <Form.TelephoneInput class="input input-bordered" value={@customer["phone"]} />
+                </Form.Field>
+
+                <Form.Field name="reference" class="field">
+                  <Form.Label>How did you hear of us?</Form.Label>
+                  <Form.TextInput class="input input-bordered" value={@customer["reference"]} />
+                </Form.Field>
+              </div></Form>
+
               <Accion click="book" classes={["btn-primary"]}
-                accion={"Book your #{ngettext("appointment", "appointments", @number)}"} >
+                accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
+                disabled={@customer
+                |> Map.take(~w[name surname phone email])
+                |> Map.values() |> Enum.map(&(String.length(&1) == 0)) |> Enum.any?}
+              >
                 <h2>Please proceed once you're ready.</h2>
               </Accion>
             {/if}
