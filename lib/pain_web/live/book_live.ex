@@ -271,7 +271,7 @@ defmodule PainWeb.BookLive do
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       ul.services li { margin-bottom: 1rem; }
       .employ-generic { align-self: center; }
-      .bypass { width: 40rem; margin: auto; }
+      .bypass { max-width: 40rem; margin: auto; }
       .form {
         display: grid;
         align-items: center;
