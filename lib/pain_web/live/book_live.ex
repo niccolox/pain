@@ -25,6 +25,7 @@ defmodule PainWeb.BookLive do
   data display_bios, :boolean, default: true
   data limbs, :map, default: %{}
   data customer, :form, default:  %{ "name" => "", "surname" => "", "phone" => "", "email" => "", "reference" => "" }
+  data booked, :boolean, default: false
 
   def handle_event("bypass", _, socket) do
     {:noreply, socket |> assign(%{
@@ -105,7 +106,8 @@ defmodule PainWeb.BookLive do
     socket.assigns
     |> Map.take(~w[ employed schedule customer limbs ]a)
     |> Pain.Order.book(chosen_services(socket.assigns[:services]))
-    {:noreply, socket}
+    {:noreply, socket
+    |> assign(:booked, true) }
   end
 
   def handle_info {process, response}, socket do
@@ -289,9 +291,18 @@ defmodule PainWeb.BookLive do
     <div class="order">
       <Card rounded>
         <:header>
-          {"Book #{ngettext("an appointment", "appointments", @number)}"}
+          {if @booked, do: "Your order is booked.",
+          else: "Book #{ngettext("an appointment", "appointments", @number)}"}
         </:header>
 
+        {#if @booked}
+          <ul>
+            <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
+            <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
+          </ul>
+          <hr/>
+          {explain_services(assigns)}
+        {#else}
         <h2>How many people are you booking for?</h2>
 
         <section id="number-people">
@@ -436,6 +447,7 @@ defmodule PainWeb.BookLive do
               </Accion>
             {/if}
           {/if}
+        {/if}
         {/if}
       </Card>
     </div>
