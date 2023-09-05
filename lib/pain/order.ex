@@ -4,10 +4,10 @@ defmodule Pain.Order do
   @doc """
 
   order = %{
-    schedule: "2023-09-01T15:00",
+    schedule: "2023-09-09T15:00",
     employed: %{1 => "_fem", 2 => "_masc", 3 => "Andy Ji", 4 => "Bin Wang"},
     customer: %{ "email" => "mail@assembled.app", "name" => "Zi", "phone" => "222-333-4444", "reference" => "", "surname" => "Ao" },
-    limbs: %{1 => "anyplace"},
+    limbs: %{2 => ["Front / Left pectoral", "Front / Abs"]},
   }
 
   cs = PainWeb.BookLive.chosen_services(%{
@@ -59,20 +59,26 @@ defmodule Pain.Order do
     end)["schedule_key"]
   end
 
-  def compile_remarks(employed, limb) do
+  def compile_remarks(employed, limbs) do
     employee = case employed do
       "_masc" -> "Any employee, masculine"
       "_fem" -> "Any employee, feminine"
       "_any" -> "Any employee"
       name -> name
     end
-    locacion = case limb do
+    locacion = case limbs do
       nil -> nil
-      "" -> nil
-      "_choose" -> nil
-      place -> "Body location: " <> place
+      [] -> nil
+      l -> Enum.map(l, fn limb ->
+          case limb do
+            nil -> nil
+            "" -> nil
+            "_choose" -> nil
+            place -> "Body location: " <> place
+          end
+      end) |> Enum.join("\n")
     end
 
-    [employee, locacion] |> Enum.filter(& !is_nil(&1)) |> Enum.join("; ")
+    [employee, locacion] |> Enum.filter(& !is_nil(&1)) |> Enum.join("\n\n")
   end
 end

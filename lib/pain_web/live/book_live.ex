@@ -52,15 +52,51 @@ defmodule PainWeb.BookLive do
 
     {:noreply, socket
     |> update(:services, &(Map.put(&1, num, params["name"])))
-    |> update(:limbs, & case service["class"] do
-      "Body and Foot Massage" -> Map.put(&1, num, "_choose")
-      _ -> &1
-    end) }
+    |> update(:limbs, fn limbs ->
+      case service["class"] do
+        "Body and Foot Massage" ->
+          Map.update(limbs, num, ["_choose"], & &1 ++ ["_choose"] |> Enum.uniq)
+        _ -> limbs
+      end
+    end)
+    }
   end
 
   def handle_event("choose_limb", params, socket) do
     num = String.to_integer(params["num"])
-    {:noreply, socket |> update(:limbs, &(Map.put(&1, num, params["limb"]))) }
+    {:noreply, socket
+    |> update(:limbs, fn limbs ->
+      Map.update(limbs, num, [params["limb"]], &
+        case Enum.member?(&1, params["limb"]) do
+          false -> &1 ++ [params["limb"]] |> Enum.uniq
+          true -> &1 -- [params["limb"]]
+        end
+      )
+    end)
+    }
+  end
+
+  def handle_event("begin_choosing_limbs", params, socket) do
+    num = String.to_integer(params["num"])
+    {:noreply, socket
+    |> update(:limbs, fn limbs ->
+      Map.update(limbs, num, ["_choose"], & &1 ++ ["_choose"] |> Enum.uniq)
+    end)
+    }
+  end
+
+  def handle_event("clear_limbs", params, socket) do
+    num = String.to_integer(params["num"])
+    {:noreply, socket
+    |> update(:limbs, fn limbs -> Map.put(limbs, num, ["_choose"]) end)
+    }
+  end
+
+  def handle_event("done_choosing_limbs", params, socket) do
+    num = String.to_integer(params["num"])
+    {:noreply, socket
+    |> update(:limbs, fn limbs -> Map.update(limbs, num, [], & &1 -- ["_choose"]) end)
+    }
   end
 
   def handle_event("clear_services", _, socket) do
@@ -146,8 +182,9 @@ defmodule PainWeb.BookLive do
 
   def chosen_services(services) do
     all = classed_services()["classes"] |> Enum.map(fn class ->
-      class["services"] |> Enum.map(&(if &1["hanyu"], do: &1,
-      else: Map.put(&1, "hanyu", class["hanyu"])))
+      class["services"]
+      |> Enum.map(&(if &1["hanyu"], do: &1, else: Map.put(&1, "hanyu", class["hanyu"])))
+      |> Enum.map(&(Map.put(&1, "class", class["name"])))
     end) |> List.flatten
 
     services
@@ -256,6 +293,12 @@ defmodule PainWeb.BookLive do
     ) > 0
   end
 
+  def needing_choice(limbs) do
+    limbs
+    |> Enum.filter(fn {_n, limbs} -> Enum.member?(limbs, "_choose") end)
+    |> Map.new
+  end
+
   def render(assigns) do
     ~F"""
     <style>
@@ -324,7 +367,7 @@ defmodule PainWeb.BookLive do
 
         <hr/>
           {#if (map_size(@services) < @number)
-          || (@limbs |> Map.values |> Enum.member?("_choose") )}
+          || map_size(needing_choice(@limbs)) > 0}
           <h2>How can we help you?</h2>
 
           {explain_services(assigns)}
@@ -337,11 +380,21 @@ defmodule PainWeb.BookLive do
             {#else}<p>Seems like an error has occurred.</p>{/for}
           </section>
 
-          {#for {num, "_choose"} <- @limbs}
+          {#for {num, limbs} <- needing_choice(@limbs)}
             <.modal id={"choose-limb-#{num}"} show>
-              <h2>Please choose the main area of the body needing help:</h2>
               <p>Customer # {num} <br/> {@services[num]}</p>
-              <BodyMap choose="choose_limb" number={num} />
+              <h2>Please choose any areas you need help on:</h2>
+
+              <button class="btn btn-primary" :on-click="done_choosing_limbs" phx-value-num={num} >
+                Done
+              </button>
+              {#if body_areas(limbs) |> length > 0}
+              <button class="btn" :on-click="clear_limbs" phx-value-num={num} >
+                Clear choices
+              </button>
+              {/if}
+
+              <BodyMap choose="choose_limb" number={num} chosen={@limbs[num] || []} />
             </.modal>
           {/for}
         {#else}
@@ -458,29 +511,32 @@ defmodule PainWeb.BookLive do
     """
   end
 
+  def body_areas(chosen) do
+    (chosen || [])
+    |> Enum.filter(& !Enum.member?([nil, "_choose"], &1))
+  end
+
   def explain_services assigns do
     ~F"""
     <style>
-      ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
-      li { margin-bottom: 1rem; }
+      ul { margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
+      li.service { margin-bottom: 1rem; }
       a { text-decoration: underline; }
     </style>
     <ul class="services">
     {#for {n, service} <- chosen_services(@services)}
-      <li>
-        {service["name"]}
+      <li class="service">
+        {service["class"]}: {service["name"]}
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
         <br/>{service["duracion"]}
         <br/>on:
-        {#if Enum.member? [nil, "_choose"], @limbs[n]}
-          <a href="#" :on-click="choose_limb" phx-value-num={n} phx-value-limb="_choose">
-          Please choose location on body ->
-          </a>
+        (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>change</a>)
+        <ul>
+        {#for area <- body_areas(@limbs[n])}
+          <li>{area}</li>
         {#else}
-          {@limbs[n]}
-          <a href="#" :on-click="choose_limb" phx-value-num={n} phx-value-limb="_choose">
-          (change)</a>
-        {/if}
+          <li>No specific location on body.</li>
+        {/for}</ul>
       </li>
     {/for}
     </ul>

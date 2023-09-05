@@ -3,15 +3,21 @@ defmodule PainWeb.Components.BodyMap do
 
   prop number, :integer
   prop choose, :event
+  prop chosen, :list
+
+  def label(side, zone) do
+    side <> "/ #{zone |> String.replace("_", " ")}"
+  end
 
   def render(assigns) do
     ~F"""
     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
        viewBox="0 0 612 722.6" style="enable-background:new 0 0 612 722.6;" xml:space="preserve">
     <style type="text/css">
-      .background{fill:#EEEEEE;stroke:#000000;stroke-linejoin:round;stroke-miterlimit:1.4142;}
-      .zone{ fill: #3d5347; }
-      .zone:hover{ fill: #54ac7f; }
+      .background {fill:#EEEEEE;stroke:#000000;stroke-linejoin:round;stroke-miterlimit:1.4142;}
+      .zone { fill: #3d5347; }
+      .zone.chosen { fill: #305ca2; }
+      .zone:hover { fill: #54ac7f; }
     </style>
 
     {#for {name, d} <- borders()}
@@ -19,12 +25,14 @@ defmodule PainWeb.Components.BodyMap do
     {/for}
 
     <g id="Front-Muscles">{#for {name, d} <- lead()}
-      <path id={name} class="zone" {=d} role="link" :on-click={@choose}
-    phx-value-num={@number} phx-value-limb={"Front / #{name |> String.replace("_", " ")}"} />
+      <path id={name} {=d} role="link" :on-click={@choose}
+        class={"zone", chosen: Enum.member?(@chosen, label("Front", name))}
+        phx-value-num={@number} phx-value-limb={label("Front", name)} />
     {/for}</g>
     <g id="Back-Muscles">{#for {name, d} <- rear()}
-      <path id={name} class="zone" {=d} role="link" :on-click={@choose}
-    phx-value-num={@number} phx-value-limb={"Back / #{name |> String.replace("_", " ")}"} />
+      <path id={name} {=d} role="link" :on-click={@choose}
+        class={"zone", chosen: Enum.member?(@chosen, label("Back", name))}
+        phx-value-num={@number} phx-value-limb={label("Back", name)} />
     {/for}</g>
 
     </svg>
