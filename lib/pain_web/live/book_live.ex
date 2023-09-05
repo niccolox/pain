@@ -516,6 +516,16 @@ defmodule PainWeb.BookLive do
     |> Enum.filter(& !Enum.member?([nil, "_choose"], &1))
   end
 
+  def sum chosen_services do
+    chosen_services
+    |> Enum.reduce(0, fn {_, service}, sum ->
+      sum + (service["duracion"]
+      |> String.split("$")
+      |> Enum.at(1)
+      |> String.to_float)
+    end)
+  end
+
   def explain_services assigns do
     ~F"""
     <style>
@@ -526,7 +536,7 @@ defmodule PainWeb.BookLive do
     <ul class="services">
     {#for {n, service} <- chosen_services(@services)}
       <li class="service">
-        {service["class"]}: {service["name"]}
+        {service["name"]}
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
         <br/>{service["duracion"]}
         <br/>on:
@@ -540,6 +550,11 @@ defmodule PainWeb.BookLive do
       </li>
     {/for}
     </ul>
+
+    {#if (@services |> chosen_services |> map_size) > 0}
+      Once your appointments have ended, you'll be charged a sum of:
+      ${sum(chosen_services(@services))}
+    {/if}
     """
   end
 end
