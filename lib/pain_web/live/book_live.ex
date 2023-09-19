@@ -324,11 +324,15 @@ defmodule PainWeb.BookLive do
       .form {
         display: grid;
         align-items: center;
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto auto 1fr;
         grid-gap: 1rem;
         margin-bottom: 2rem;
+        text-align: right;
       }
       .field { display: contents; }
+      .required :deep(label)::before { content: '*'; color: #117864; }
+      .field :deep(label) { grid-column: 2; }
+      .field :deep(input) { grid-column: 3; }
     </style>
 
     {#if System.get_env("ORDER_BYPASS")}
@@ -470,17 +474,17 @@ defmodule PainWeb.BookLive do
               <h2>Nearly done; your information is needed.</h2>
 
               <Form for={@customer} change="customer"><div class="form">
-                <Form.Field name="name" class="field">
+                <Form.Field name="name" class="field required" >
                   <Form.Label/>
                   <Form.TextInput class="input input-bordered" value={@customer["name"]} />
                 </Form.Field>
 
-                <Form.Field name="email" class="field">
+                <Form.Field name="email" class="field required">
                   <Form.Label/>
                   <Form.EmailInput class="input input-bordered" value={@customer["email"]} />
                 </Form.Field>
 
-                <Form.Field name="phone" class="field">
+                <Form.Field name="phone" class="field required">
                   <Form.Label/>
                   <Form.TelephoneInput class="input input-bordered" value={@customer["phone"]} />
                 </Form.Field>
