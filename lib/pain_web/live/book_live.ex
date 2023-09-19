@@ -18,11 +18,12 @@ defmodule PainWeb.BookLive do
 
   data number, :integer, default: 1
   data open_class, :string, default: ""
+  data schedule, :string, default: nil
+  data display_bios, :boolean, default: true
+
   data services, :map, default: %{}
   data employed, :map, default: %{}
-  data schedule, :string, default: nil # "2023-08-28T14:00"
   data calendars, :map, default: %{}
-  data display_bios, :boolean, default: true
   data limbs, :map, default: %{}
   data customer, :form, default:  %{ "name" => "", "surname" => "", "phone" => "", "email" => "", "reference" => "" }
   data booked, :boolean, default: false
@@ -36,7 +37,7 @@ defmodule PainWeb.BookLive do
         3 => "Cupping",
         4 => "Wet Cupping"
       },
-      schedule: "2023-08-31T19:00",
+      schedule: "2023-09-30T19:00",
       employed: %{1 => "_fem", 2 => "_masc", 3 => "Andy Ji", 4 => "Bin Wang"}
     })}
   end
@@ -138,7 +139,7 @@ defmodule PainWeb.BookLive do
 
   def handle_event("customer", params, socket) do
     {:noreply, socket
-    |> assign(:customer, params |> Map.take(~w[name surname phone email reference]))
+    |> assign(:customer, params |> Map.take(~w[name phone email reference]))
     }
   end
 
@@ -473,11 +474,6 @@ defmodule PainWeb.BookLive do
                   <Form.TextInput class="input input-bordered" value={@customer["name"]} />
                 </Form.Field>
 
-                <Form.Field name="surname" class="field">
-                  <Form.Label/>
-                  <Form.TextInput class="input input-bordered" value={@customer["surname"]} />
-                </Form.Field>
-
                 <Form.Field name="email" class="field">
                   <Form.Label/>
                   <Form.EmailInput class="input input-bordered" value={@customer["email"]} />
@@ -497,7 +493,7 @@ defmodule PainWeb.BookLive do
               <Accion click="book" classes={["btn-primary"]}
                 accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
                 disabled={@customer
-                |> Map.take(~w[name surname phone email])
+                |> Map.take(~w[name phone email])
                 |> Map.values() |> Enum.map(&(String.length(&1) == 0)) |> Enum.any?}
               >
                 <h2>Please proceed once you're ready.</h2>

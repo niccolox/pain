@@ -105,6 +105,15 @@ defmodule Pain.Schedule do
     end)
   end
 
+  def addons do
+    case (
+      HTTPoison.get!("https://acuityscheduling.com/api/v1/appointment-addons", headers())
+      |> Map.get(:body) |> Jason.decode
+    ) do
+      {:ok, r} -> r
+    end
+  end
+
   def reduce_calendars calendars do
     calendars |> Enum.reduce(%{}, fn calendar, all ->
       calendar |> Enum.reduce(all, fn calBlock, cal ->
@@ -119,9 +128,17 @@ defmodule Pain.Schedule do
     end) |> MapSet.to_list
   end
 
-  def open_blocks possible_by_day, day do
+  def blocks_by_day blocks do
+    blocks
+    |> Enum.filter(&(length(&1) > 0))
+    |> Enum.reduce(%{}, fn day, all ->
+      Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
+    end)
+  end
+
+  def open_blocks blocks_by_day, day do
     case (
-      possible_by_day
+      blocks_by_day
       |> Enum.filter(&(length(&1) > 0))
       |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == day))
     ) do

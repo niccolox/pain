@@ -25,11 +25,15 @@ defmodule Pain.Order do
     services
     |> Enum.sort_by(fn {n, _} -> employee_key(order[:employed][n]) end)
     |> Enum.each(fn {n, service} ->
+      [name, surname] = case order[:customer]["name"] |> String.split(" ") do
+        [n | []] -> [n,"_"]
+        [n | [s]] -> [n, s]
+      end
       body = %{
         datetime: order[:schedule],
         appointmentTypeID: service["schedule_key"],
-        firstName: order[:customer]["name"],
-        lastName: order[:customer]["surname"],
+        firstName: name,
+        lastName: surname,
         email: order[:customer]["email"],
         phone: order[:customer]["phone"],
         notes: compile_remarks(order[:employed][n], order[:limbs][n]),
@@ -44,7 +48,7 @@ defmodule Pain.Order do
         {:error, r} -> IO.inspect r; []
         {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
         {:ok, r } -> r
-      end
+      end |> IO.inspect
     end)
   end
 
@@ -61,8 +65,8 @@ defmodule Pain.Order do
 
   def compile_remarks(employed, limbs) do
     employee = case employed do
-      "_masc" -> "Any employee, masculine"
-      "_fem" -> "Any employee, feminine"
+      "_masc" -> "Masculine employee"
+      "_fem" -> "Feminine employee"
       "_any" -> "Any employee"
       name -> name
     end

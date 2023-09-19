@@ -17,24 +17,31 @@ defmodule PainWeb.Components.Schedule do
   def update(assigns, socket) do
     {:ok, socket
     |> assign(assigns)
-    |> assign(if assigns[:possible], do: %{}, else: %{
-      process: Task.async(fn -> check_blocks(
-        service_demand(assigns[:service_keys]), assigns[:employee_keys], this_month())
-      end) })
+    |> assign(
+      if assigns[:possible], do: %{}, else:
+      %{ process:
+        Task.async(fn -> service_demand(assigns[:service_keys])
+        |> check_blocks(assigns[:employee_keys], this_month())
+        end) }
+    )
     |> push_event("color", %{})
     }
   end
 
   def handle_event("schedule_day", params, socket) do
+    socket.assigns[:possible]# [params["day"]]
+    |> IO.inspect
     {:noreply, assign(socket, :day, params["day"])}
   end
 
   def handle_event("schedule_month", params, socket) do
     {:noreply, socket
-    |> assign(:process, Task.async(fn -> check_blocks(
-      service_demand(socket.assigns[:service_keys]),
-      socket.assigns[:employee_keys],
-      month("#{params["year"]}-#{params["month"]}")) end))
+    |> assign(:process, Task.async(fn ->
+      service_demand(socket.assigns[:service_keys])
+      |> check_blocks(
+        socket.assigns[:employee_keys],
+        month("#{params["year"]}-#{params["month"]}")
+      ) end))
     }
   end
 
@@ -66,12 +73,8 @@ defmodule PainWeb.Components.Schedule do
       .hour > .min { grid-column: 2; text-decoration: underline; cursor: pointer; }
     </style>
 
-    <section class="schedule" data-day={today()} data-possible={
-      @possible
-      |> Enum.filter(&(length(&1) > 0))
-      |> Enum.reduce(%{}, fn day, all ->
-        Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
-      end) |> Jason.encode! } >
+    <section class="schedule" data-day={today()}
+      data-possible={blocks_by_day(@possible) |> Jason.encode! } >
       <div class="inline">
         <div phx-update="ignore">
           <input type="text" id="calendar" :hook="Calendar" phx-target={@myself} />
