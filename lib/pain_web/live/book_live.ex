@@ -4,17 +4,18 @@ defmodule PainWeb.BookLive do
 
   import Pain.Schedule, only: [check_blocks_on_calendars: 3]
 
-  alias PainWeb.Components.Card
-  alias PainWeb.Components.Class
-  alias PainWeb.Components.Employee
   alias PainWeb.Components.Accion
+  alias PainWeb.Components.BodyMap
+  alias PainWeb.Components.Card
   alias PainWeb.Components.Choices
+  alias PainWeb.Components.Class
+  alias PainWeb.Components.Conditions
+  alias PainWeb.Components.Employee
   alias PainWeb.Components.Schedule
   alias PainWeb.Components.ServiceMap
-  alias PainWeb.Components.BodyMap
   alias Surface.Components.Form
 
-  import PainWeb.CoreComponents, only: [modal: 1]
+  import PainWeb.CoreComponents, only: [modal: 1, show_modal: 1, hide_modal: 1]
 
   data number, :integer, default: 1
   data open_class, :string, default: ""
@@ -26,7 +27,13 @@ defmodule PainWeb.BookLive do
   data calendars, :map, default: %{}
   data limbs, :map, default: %{}
 
-  data customer, :form, default:  %{ "name" => "", "phone" => "", "email" => "", "reference" => "" }
+  data customer, :form, default:  %{
+    "name" => "",
+    "phone" => "",
+    "email" => "",
+    "reference" => "",
+    "conditions" => false,
+  }
   data booked, :boolean, default: false
 
   def handle_event("bypass", _, socket) do
@@ -139,9 +146,8 @@ defmodule PainWeb.BookLive do
     {:noreply, socket |> assign(:display_bios, params["shape"]) }
 
   def handle_event("customer", params, socket) do
-    {:noreply, socket
-    |> assign(:customer, params |> Map.take(~w[name phone email reference]))
-    }
+    {:noreply, socket |> assign(:customer, params
+    |> Map.take(~w[name phone email reference conditions])) }
   end
 
   def handle_event("book", _, socket) do
@@ -333,6 +339,7 @@ defmodule PainWeb.BookLive do
       .required :deep(label)::before { content: '*'; color: #117864; }
       .field :deep(label) { grid-column: 2; }
       .field :deep(input) { grid-column: 3; }
+      a.conditions { text-decoration: underline; }
     </style>
 
     {#if System.get_env("ORDER_BYPASS")}
@@ -493,11 +500,28 @@ defmodule PainWeb.BookLive do
                   <Form.Label>How did you hear of us?</Form.Label>
                   <Form.TextInput class="input input-bordered" value={@customer["reference"]} />
                 </Form.Field>
+
+                <Form.Field name="conditions" class="field required">
+                  <Form.Label>
+                    I agree to the
+                    <a href="#" class="conditions"
+                      phx-click={show_modal("conditions-modal")}
+                    >conditions</a>.
+                  </Form.Label>
+                  <Form.Checkbox class="toggle toggle-primary" value={@customer["conditions"]} />
+                </Form.Field>
               </div></Form>
+
+              <.modal id="conditions-modal">
+                <Conditions id="conditions-render"/>
+                <button class="btn btn-primary"
+                      phx-click={hide_modal("conditions-modal")}
+                >Done</button>
+              </.modal>
 
               <Accion click="book" classes={["btn-primary"]}
                 accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
-                disabled={@customer
+                disabled={@customer["conditions"] == "false" || @customer
                 |> Map.take(~w[name phone email])
                 |> Map.values() |> Enum.map(&(String.length(&1) == 0)) |> Enum.any?}
               >
