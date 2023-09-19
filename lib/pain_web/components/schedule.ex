@@ -22,16 +22,23 @@ defmodule PainWeb.Components.Schedule do
       %{ process:
         Task.async(fn -> service_demand(assigns[:service_keys])
         |> check_blocks(assigns[:employee_keys], this_month())
+        |> blocks_by_day()
         end) }
     )
-    |> push_event("color", %{})
-    }
+    |> push_event("color", %{}) }
   end
 
   def handle_event("schedule_day", params, socket) do
-    socket.assigns[:possible]# [params["day"]]
-    |> IO.inspect
-    {:noreply, assign(socket, :day, params["day"])}
+    {:noreply, socket
+    |> assign(:day, params["day"])
+    |> assign(
+      if socket.assigns[:possible][params["day"]], do: %{}, else:
+      %{ process: Task.async(fn ->
+        service_demand(socket.assigns[:service_keys])
+        |> check_blocks(socket.assigns[:employee_keys], range(day(params["day"])))
+        |> blocks_by_day()
+      end) })
+    }
   end
 
   def handle_event("schedule_month", params, socket) do
@@ -41,8 +48,9 @@ defmodule PainWeb.Components.Schedule do
       |> check_blocks(
         socket.assigns[:employee_keys],
         month("#{params["year"]}-#{params["month"]}")
-      ) end))
-    }
+      )
+      |> blocks_by_day()
+    end)) }
   end
 
   def render(assigns) do
@@ -73,20 +81,23 @@ defmodule PainWeb.Components.Schedule do
       .hour > .min { grid-column: 2; text-decoration: underline; cursor: pointer; }
     </style>
 
-    <section class="schedule" data-day={today()}
-      data-possible={blocks_by_day(@possible) |> Jason.encode! } >
+    <section class="schedule" data-day={today()} data-possible={
+      @possible
+      |> Enum.map(fn {d,b} -> {d, length b } end)
+      |> Enum.into(%{})
+      |> Jason.encode! } >
       <div class="inline">
         <div phx-update="ignore">
           <input type="text" id="calendar" :hook="Calendar" phx-target={@myself} />
         </div>
         <div>
           {#if @process}<span>...loading...</span>
-          {#elseif length(@possible |> open_blocks(@day)) == 0}
+          {#elseif length(@possible[@day] || []) == 0}
             <span>There are no more openings on {@day}.</span>
           {#else}
             <span>Please choose a block of time on {@day}.</span>
             <div class="blocks">
-              {#for {hour, mins} <- (@possible |> open_blocks(@day) |> hour_map())}
+              {#for {hour, mins} <- (@possible[@day] |> hour_map())}
                 <div class="hour"><span>{hour}:</span>
                 {#for min <- mins}
                   <div role="link" class="min" :on-click={@schedule}

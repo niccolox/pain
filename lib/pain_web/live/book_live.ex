@@ -25,7 +25,8 @@ defmodule PainWeb.BookLive do
   data employed, :map, default: %{}
   data calendars, :map, default: %{}
   data limbs, :map, default: %{}
-  data customer, :form, default:  %{ "name" => "", "surname" => "", "phone" => "", "email" => "", "reference" => "" }
+
+  data customer, :form, default:  %{ "name" => "", "phone" => "", "email" => "", "reference" => "" }
   data booked, :boolean, default: false
 
   def handle_event("bypass", _, socket) do

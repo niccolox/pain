@@ -20,6 +20,9 @@ defmodule Pain.Schedule do
     end
   end
 
+  def day(phrase), do: Date.from_iso8601(phrase) |> elem(1)
+  def range(day), do: Date.range(day, day)
+
   def this_month do
     Date.range(today(), today() |> Date.end_of_month)
   end
@@ -132,29 +135,18 @@ defmodule Pain.Schedule do
     blocks
     |> Enum.filter(&(length(&1) > 0))
     |> Enum.reduce(%{}, fn day, all ->
-      Map.put(all, (day |> hd |> String.split("T") |> hd), length day)
+      Map.put(all, (day |> hd |> String.split("T") |> hd), day)
     end)
-  end
-
-  def open_blocks blocks_by_day, day do
-    case (
-      blocks_by_day
-      |> Enum.filter(&(length(&1) > 0))
-      |> Enum.filter(&( (&1 |> hd |> String.split("T") |> hd) == day))
-    ) do
-      [] -> []
-      [blocks] -> blocks
-    end
   end
 
   @doc """
   import Pain.Schedule
-  check_blocks(
-    service_demand([ 39928578, 39928780, 39931669, ]),
-    [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
-    this_month())
-  |> open_blocks("2023-08-30")
-  |> hour_map()
+  ( service_demand([ 39928578, 39928780, 39931669, ])
+    |> check_blocks(
+      [ 7733522, 4351609, 8178118, 7733431, 7733550, 7822447, 7832226, ],
+      this_month()
+    ) |> blocks_by_day()
+  )["2023-09-30"] |> hour_map()
   """
   def hour_map(clocks) do
     clocks
