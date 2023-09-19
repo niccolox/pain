@@ -16,10 +16,11 @@ defmodule PainWeb.Components.Schedule do
 
   def update(assigns, socket) do
     {:ok, socket
-    |> assign(assigns)
+    |> assign(assigns |> Map.take(~w[ service_keys employee_keys schedule day block process ]a))
     |> assign(
-      if assigns[:possible], do: %{}, else:
-      %{ process:
+      if assigns[:possible],
+        do: %{ possible: Map.merge(socket.assigns[:possible], assigns[:possible]) },
+        else: %{ process:
         Task.async(fn -> service_demand(assigns[:service_keys])
         |> check_blocks(assigns[:employee_keys], this_month())
         |> blocks_by_day()
