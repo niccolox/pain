@@ -633,10 +633,10 @@ defmodule PainWeb.BookLive do
             </button>
           {/for}
         {#else}
-          <ul>{#for addon <- (@addons[n]
+          <ul>{#for addon <- ((@addons[n] || [])
             |> Enum.map(fn key -> @all_addons |> Enum.find(& &1["id"] == key) end)) }
             <li><span>${addon["price"]}</span> / <span>{addon["name"]}</span></li>
-          {/for}
+          {#else}(none){/for}
           </ul>
         {/if}
       </li>
