@@ -26,6 +26,8 @@ defmodule PainWeb.BookLive do
   data employed, :map, default: %{}
   data calendars, :map, default: %{}
   data limbs, :map, default: %{}
+  data addons, :map, default: %{}
+  data all_addons, :list, default: []
 
   data customer, :form, default:  %{
     "name" => "",
@@ -35,6 +37,10 @@ defmodule PainWeb.BookLive do
     "conditions" => false,
   }
   data booked, :boolean, default: false
+
+  def mount _, _, socket do
+    { :ok, socket |> assign(:all_addons, Pain.Schedule.addons) }
+  end
 
   def handle_event("bypass", _, socket) do
     {:noreply, socket |> assign(%{
@@ -148,6 +154,16 @@ defmodule PainWeb.BookLive do
   def handle_event("customer", params, socket) do
     {:noreply, socket |> assign(:customer, params
     |> Map.take(~w[name phone email reference conditions])) }
+  end
+
+  def handle_event("addon", params, socket) do
+    num = String.to_integer(params["num"])
+    addon = String.to_integer(params["addon"])
+    {:noreply, socket |> update(:addons, fn addons ->
+      if Enum.member?(addons[num] || [], addon),
+        do: Map.update(addons, num, [], & &1 -- [addon]),
+        else: Map.update(addons, num, [addon], & &1 ++ [addon])
+    end) }
   end
 
   def handle_event("book", _, socket) do
@@ -519,6 +535,12 @@ defmodule PainWeb.BookLive do
                 >Done</button>
               </.modal>
 
+              {#if (@services |> chosen_services |> map_size) > 0}
+                Once your appointments have ended, you'll be charged a sum of: <br/>
+                ${sum_services(chosen_services(@services)) + sum_addons(@addons, @all_addons)}
+                (plus taxes)
+              {/if}
+
               <Accion click="book" classes={["btn-primary"]}
                 accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
                 disabled={@customer["conditions"] == "false" || @customer
@@ -541,7 +563,7 @@ defmodule PainWeb.BookLive do
     |> Enum.filter(& !Enum.member?([nil, "_choose"], &1))
   end
 
-  def sum chosen_services do
+  def sum_services chosen_services do
     chosen_services
     |> Enum.reduce(0, fn {_, service}, sum ->
       sum + (service["duracion"]
@@ -549,6 +571,16 @@ defmodule PainWeb.BookLive do
       |> Enum.at(1)
       |> String.to_float)
     end)
+  end
+
+  def sum_addons addons, all_addons do
+    addons
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.map(fn key -> all_addons |> Enum.find(& &1["id"] == key) end)
+    |> Enum.map(& &1["price"] |> String.to_float)
+    |> Enum.sum()
+    |> IO.inspect()
   end
 
   def explain_services assigns do
@@ -563,22 +595,37 @@ defmodule PainWeb.BookLive do
       <li class="service">
         {service["name"]}
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
-        <br/>{service["duracion"]}
-        <br/>on:
-        (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>change</a>)
-        <ul>
-        {#for area <- body_areas(@limbs[n])}
-          <li>{area}</li>
+        <br/>{service["duracion"]}<br/>
+
+        {#if length body_areas @limbs[n] == 0}
+          on no specific location on body.
+          (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
+          change</a>)
         {#else}
-          <li>No specific location on body.</li>
-        {/for}</ul>
+          on: (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
+          change</a>)
+          <ul>{#for area <- body_areas(@limbs[n])}
+            <li>{area}</li>
+          {/for}</ul>
+        {/if}
+
+        <br/>Add-ons:<br/>
+        {#for addon <- @all_addons}
+          <button :on-click="addon" phx-value-num={n} phx-value-addon={addon["id"]}
+            class={"btn", "join-item", "btn-sm",
+            "btn-active": Enum.member?(@addons[n] || [], addon["id"])}
+          > <span>${addon["price"]}</span> /
+            <span>{addon["name"]}</span>
+          </button>
+        {/for}
       </li>
     {/for}
     </ul>
 
     {#if (@services |> chosen_services |> map_size) > 0}
-      Once your appointments have ended, you'll be charged a sum of:
-      ${sum(chosen_services(@services))}
+      Once your appointments have ended, you'll be charged a sum of: <br/>
+      ${sum_services(chosen_services(@services)) + sum_addons(@addons, @all_addons)}
+      (plus taxes)
     {/if}
     """
   end
