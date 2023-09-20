@@ -36,7 +36,7 @@ defmodule PainWeb.BookLive do
     "reference" => "",
     "conditions" => false,
   }
-  data booked, :boolean, default: false
+  data booked, :list, default: nil
 
   def mount _, _, socket do
     { :ok, socket |> assign(:all_addons, Pain.Schedule.addons) }
@@ -167,11 +167,14 @@ defmodule PainWeb.BookLive do
   end
 
   def handle_event("book", _, socket) do
-    socket.assigns
-    |> Map.take(~w[ employed schedule customer limbs ]a)
-    |> Pain.Order.book(chosen_services(socket.assigns[:services]))
-    {:noreply, socket
-    |> assign(:booked, true) }
+    links = (
+      socket.assigns
+      |> Map.take(~w[ employed schedule customer limbs ]a)
+      |> Pain.Order.book(
+        chosen_services(socket.assigns[:services]),
+        socket.assigns[:addons])
+    ) |> IO.inspect()
+    {:noreply, socket |> assign(:booked, links) }
   end
 
   def handle_info {process, response}, socket do
@@ -328,6 +331,7 @@ defmodule PainWeb.BookLive do
     <style>
       section { margin: 1rem 0 1rem; }
       h2 { font-weight: 600; margin-bottom: 1rem; }
+      h3 { font-weight: 500; }
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
@@ -580,7 +584,6 @@ defmodule PainWeb.BookLive do
     |> Enum.map(fn key -> all_addons |> Enum.find(& &1["id"] == key) end)
     |> Enum.map(& &1["price"] |> String.to_float)
     |> Enum.sum()
-    |> IO.inspect()
   end
 
   def explain_services assigns do
@@ -596,28 +599,46 @@ defmodule PainWeb.BookLive do
         {service["name"]}
         {#if service["hanyu"]} / {service["hanyu"]}{/if}
         <br/>{service["duracion"]}<br/>
+        {#if (@booked || []) |> Enum.at(n-1) == "/error"}
+          <h3>An error occurred booking this appointment.</h3>
+        {#elseif (@booked || []) |> Enum.at(n-1)}
+          <a target="_blank" href={@booked |> Enum.at(n-1)}>
+            See or cancel this booking.
+          </a><br/>
+        {/if}
 
         {#if length body_areas @limbs[n] == 0}
           on no specific location on body.
-          (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
-          change</a>)
+          {#if !@booked}
+            (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
+            change</a>){/if}
         {#else}
-          on: (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
-          change</a>)
-          <ul>{#for area <- body_areas(@limbs[n])}
-            <li>{area}</li>
+        on:
+        {#if !@booked}
+          (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
+          change</a>){/if}
+        <ul>{#for area <- body_areas(@limbs[n])}
+          <li>{area}</li>
           {/for}</ul>
         {/if}
 
         <br/>Add-ons:<br/>
-        {#for addon <- @all_addons}
-          <button :on-click="addon" phx-value-num={n} phx-value-addon={addon["id"]}
-            class={"btn", "join-item", "btn-sm",
-            "btn-active": Enum.member?(@addons[n] || [], addon["id"])}
-          > <span>${addon["price"]}</span> /
-            <span>{addon["name"]}</span>
-          </button>
-        {/for}
+        {#if !@booked}
+          {#for addon <- @all_addons}
+            <button :on-click="addon" phx-value-num={n} phx-value-addon={addon["id"]}
+              class={"btn", "join-item", "btn-sm",
+              "btn-active": Enum.member?(@addons[n] || [], addon["id"]) } >
+              <span>${addon["price"]}</span> /
+              <span>{addon["name"]}</span>
+            </button>
+          {/for}
+        {#else}
+          <ul>{#for addon <- (@addons[n]
+            |> Enum.map(fn key -> @all_addons |> Enum.find(& &1["id"] == key) end)) }
+            <li><span>${addon["price"]}</span> / <span>{addon["name"]}</span></li>
+          {/for}
+          </ul>
+        {/if}
       </li>
     {/for}
     </ul>

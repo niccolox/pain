@@ -19,12 +19,12 @@ defmodule Pain.Order do
   order |> Pain.Order.book(cs)
 
   """
-  def book order, services do
+  def book order, services, addons do
     address = "https://acuityscheduling.com/api/v1/appointments?admin=true" <> "&noEmail=true"
 
     services
     |> Enum.sort_by(fn {n, _} -> employee_key(order[:employed][n]) end)
-    |> Enum.each(fn {n, service} ->
+    |> Enum.map(fn {n, service} ->
       [name, surname] = case order[:customer]["name"] |> String.split(" ") do
         [n | []] -> [n,"_"]
         [n | [s]] -> [n, s]
@@ -37,6 +37,7 @@ defmodule Pain.Order do
         email: order[:customer]["email"],
         phone: order[:customer]["phone"],
         notes: compile_remarks(order[:employed][n], order[:limbs][n]),
+        addonIDs: addons[n],
       }
       body = case employee_key(order[:employed][n]) do
         nil -> body
@@ -45,10 +46,10 @@ defmodule Pain.Order do
       |> IO.inspect |> Jason.encode!
 
       case (HTTPoison.post!(address, body, headers()) |> Map.get(:body) |> Jason.decode) do
-        {:error, r} -> IO.inspect r; []
-        {:ok, r = %{"status_code" => 400}} -> IO.inspect r; []
-        {:ok, r } -> r
-      end |> IO.inspect
+        {:error, r} -> IO.inspect r; "/error"
+        {:ok, r = %{"status_code" => 400}} -> IO.inspect r; "/error"
+        {:ok, r } -> r["confirmationPagePaymentLink"]
+      end
     end)
   end
 
