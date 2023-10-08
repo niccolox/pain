@@ -48,6 +48,6 @@ defmodule PainWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
-  plug CORSPlug
+  plug CORSPlug, origin: ["https://www.painawayofphilly.com", ~r/^https:\/\/squarespace.com$/]
   plug PainWeb.Router
 end
