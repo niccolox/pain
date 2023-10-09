@@ -20,7 +20,7 @@ defmodule Pain.Order do
 
   """
   def book order, services, addons do
-    address = "https://acuityscheduling.com/api/v1/appointments?admin=true" <> "&noEmail=true"
+    address = "https://acuityscheduling.com/api/v1/appointments?admin=true" # <> "&noEmail=true"
 
     services
     |> Enum.sort_by(fn {n, _} -> employee_key(order[:employed][n]) end)
