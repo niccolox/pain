@@ -34,7 +34,6 @@ defmodule Pain.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:cors_plug, "~> 3.0"},
       {:dotenv, "~> 3.0.0", only: [:dev, :test]},
       {:ecto_sql, "~> 3.10"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
