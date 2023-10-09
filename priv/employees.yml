@@ -74,3 +74,13 @@ employees:
       relaxed, but also alleviate pain and stress. 
     schedule_key: 7832226
     gender: feminine
+  - name: Luke Zhu
+    image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026857.jpg?1696031887
+    biography: Biography coming soon.
+    schedule_key: 9026857
+    gender: masculine
+  - name: Cindy Kang
+    image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026847.jpg?1696031781
+    biography: Biography coming soon.
+    schedule_key: 9026847
+    gender: feminine
