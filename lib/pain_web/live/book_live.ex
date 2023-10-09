@@ -607,7 +607,7 @@ defmodule PainWeb.BookLive do
           </a><br/>
         {/if}
 
-        {#if length body_areas @limbs[n] == 0}
+        {#if length(body_areas @limbs[n]) == 0}
           on no specific location on body.
           {#if !@booked}
             (<a href="#" :on-click="begin_choosing_limbs" phx-value-num={n}>
