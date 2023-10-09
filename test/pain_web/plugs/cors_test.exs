@@ -10,7 +10,8 @@ defmodule PainWeb.Plugs.EnableCorsTest do
     assert(
       conn.resp_headers
       |> Enum.find(fn {header, _} -> header == "content-security-policy" end)
-      == { "content-security-policy", "frame-ancestors 'self' https://*painawayofphilly.com https://*squarespace.com;" }
+      == { "content-security-policy",
+        "frame-ancestors 'self' https://painawayofphilly.com https://*.painawayofphilly.com https://*squarespace.com;" }
     )
   end
 end
