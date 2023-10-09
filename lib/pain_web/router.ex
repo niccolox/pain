@@ -10,6 +10,7 @@ defmodule PainWeb.Router do
     plug :put_root_layout, html: {PainWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug PainWeb.Plugs.EnableCors
   end
 
   pipeline :api do
