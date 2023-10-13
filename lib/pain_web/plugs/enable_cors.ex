@@ -6,7 +6,7 @@ defmodule PainWeb.Plugs.EnableCors do
   def call(conn, _opts) do
     conn |> put_resp_header(
       "content-security-policy",
-      "frame-ancestors 'self'  https://*.painawayofphilly.com https://*.squarespace.com;"
+      "frame-ancestors 'self'  https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com;"
     ) |> delete_resp_header("x-frame-options")
   end
 end
