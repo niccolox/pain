@@ -66,6 +66,14 @@ if config_env() == :prod do
       "//painawayofphilly.com",
       "//www.painawayofphilly.com",
       "//dove-caribou-3986.squarespace.com",
+
+      "ws://painawayofphilly.com",
+      "ws://www.painawayofphilly.com",
+      "ws://dove-caribou-3986.squarespace.com",
+
+      "https://painawayofphilly.com",
+      "https://www.painawayofphilly.com",
+      "https://dove-caribou-3986.squarespace.com",
     ]
 
   # ## SSL Support
