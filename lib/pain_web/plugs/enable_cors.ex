@@ -4,9 +4,15 @@ defmodule PainWeb.Plugs.EnableCors do
 
   def init(_), do: %{}
   def call(conn, _opts) do
-    conn |> put_resp_header(
+    conn
+    |> put_resp_header(
       "content-security-policy",
       "frame-ancestors 'self'  https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com;"
-    ) |> delete_resp_header("x-frame-options")
+    )
+    |> put_resp_header(
+      "Access-Control-Allow-Origin",
+      "https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com"
+    )
+    |> delete_resp_header("x-frame-options")
   end
 end
