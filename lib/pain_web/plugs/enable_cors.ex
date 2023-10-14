@@ -7,11 +7,11 @@ defmodule PainWeb.Plugs.EnableCors do
     conn
     |> put_resp_header(
       "content-security-policy",
-      "frame-ancestors 'self'  https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com;"
+      "frame-ancestors 'self' https://assemble.codes https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com;"
     )
     |> put_resp_header(
       "Access-Control-Allow-Origin",
-      "https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com"
+      "https://assemble.codes https://www.painawayofphilly.com https://painawayofphilly.com https://*.squarespace.com"
     )
     |> delete_resp_header("x-frame-options")
   end
