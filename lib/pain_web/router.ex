@@ -8,7 +8,7 @@ defmodule PainWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {PainWeb.Layouts, :root}
-    plug :protect_from_forgery, allow_hosts: [
+    plug Plug.CSRFProtection, allow_hosts: [
       "//assemble.codes",
       "//painawayofphilly.com",
       "//www.painawayofphilly.com",
