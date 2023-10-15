@@ -8,7 +8,7 @@ defmodule PainWeb.Endpoint do
     store: :cookie,
     key: "_pain_key",
     signing_salt: "GwUZYzuY",
-    # same_site: "Lax"
+    same_site: "None"
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
