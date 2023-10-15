@@ -1,5 +1,6 @@
 classes:
-  - name: Body and Foot Massage
+
+  - name: Body Massage
     hanyu: 按摩
     descripcion: |
       We offer a wide range of massage options
@@ -22,6 +23,7 @@ classes:
       - name: 2hrs Massage
         duracion: 2 hours @ $160.00
         schedule_key: 43792772
+
   - name: Reflexology with Chinese Medicine
     hanyu: 脚部按摩
     descripcion: |
@@ -42,6 +44,7 @@ classes:
       - name: 90Min Reflexology with Chinese Medicine
         duracion: 1 hour 30 minutes @ $120.00
         schedule_key: 39929015
+
   - name: Cupping
     hanyu: 拔罐
     descripcion: |
@@ -78,20 +81,22 @@ classes:
           This is thus used to improve both lymphatic and blood circulation
           and relieve pain.
           NOTE: this only is applied on a single accupuncture point.
-  - name: Other Traditional Medical Therapies
+
+  - name: Other Traditional Therapies & Specialty Treatments
     services:
       - name: Moxibustion
         hanyu: 艾灸
         duracion: 30 minutes @ $60.00
         schedule_key: 39928656
         descripcion: |
-          Moxibustion is a traditional Chinese medicine technique
-          that involves the use of heat to stimulate acupuncture points in the body.
-          It is believed to improve circulation, boost the immune system,
-          and reduce pain and inflammation.
+          Traditional Moxibustion is a therapeutic practice deeply rooted in
+          Chinese medicine. It involves the controlled burning of dried Chinese
+          mugwort (Artemisia vulgaris) on specific points or areas of the body
+          to stimulate healing and promote overall well-being.
           At Pain Away of Philly, our therapists are trained
           in the proper use of moxibustion and will work with you
           to determine if it is a suitable treatment option for your needs.
+
       - name: Gua Sha
         hanyu: 刮痧
         duracion: 30 minutes @ $60.00
@@ -99,13 +104,44 @@ classes:
         descripcion: |
           Gua sha massage is a technique that involves scraping the skin
           with a special massage tool to improve circulation and reduce inflammation.
-          This process, also known as coining, spooning, or scraping,
-          involves the application of oil to the skin
-          followed by the use of the gua sha tool to massage the affected area.
+          This process, also known as coining, spooning, or scraping.
+
           In addition to promoting healing and improving circulation,
-          gua sha massage is believed to address stagnant energy in the body
-          and provide overall health benefits.
-      - name: Thermo-Theraphy
+          it releases the blocked energy and heat, decrease inflammation,
+          relieve pain, tension, detoxify, nourish the skin, cell nourishment
+          and strengthens the immunes system. and effectively reducing
+          hypertension.
+
+      - name: Foot Shaping / Pedicure Therapy
+        hanyu: 修脚
+        duracion: 15 minutes @ $40.00
+        schedule_key: 53993217
+        descripcion: |
+          Cosmetic treatment of the feet and toenails. During the treatment,
+          dead skin cells are scraped off and toenails will be properly trimmed
+          and cleaned.
+
+      - name: Ear Cleansing Therapy
+        hanyu: 采耳
+        duracion: 15 minutes @ $40.00
+        schedule_key: 53993230
+        descripcion: |
+          Ear cleansing therapy offers a tranquil blend of calm, relief, and
+          sheer relaxation. It helps with ear congestion, ear-ache, and
+          prevents infection.
+
+      - name: Maternal Massage
+        hanyu: 产妇按摩
+        duracion: 45 minutes @ $90.00
+        schedule_key: 53993252
+        descripcion: |
+          Our maternal massage is tailored to support expecting and new
+          mothers, aiding in both pregnancy comfort and postnatal recovery.
+          This specialized massage not only eases pregnancy discomfort but also
+          addresses lactation pain, providing nurturing care during this
+          transformative time in a woman's life
+
+      - name: Thermo-Therapy
         hanyu: 中药热敷
         duracion: 45 minutes @ $35.00
         schedule_key: 39929598
@@ -116,3 +152,33 @@ classes:
           allows the medicine to be locally absorbed through the skin,
           reaching lesions and making the treatment more direct and effective.
           NOTE: This booking is per body part (ei. lower back, upper back etc)
+
+  - name: Combo Package
+    services:
+      - name: Scalp massage w. Gua-Sha Therapy
+        hanyu: 头皮按摩 + 刮痧
+        duracion: 30 minutes @ $60.00
+        schedule_key: 53993063
+        descripcion: |
+          A harmonious blend of relaxation and rejuvenation. Feel tension melt
+          away with a scalp massage, and let Gua-sha therapy leave you with a
+          radiant glow
+
+      - name: Facial Massage w. Gua-sha and Moxibustion
+        hanyu: 头皮按摩 + 刮痧 + 艾灸
+        duracion: 45 minutes @ $80.00
+        schedule_key: 53993130
+        descripcion: |
+          Ultimate wellness trio - a combination of scalp massage, Gua-Sha
+          therapy, and Moxibustion. Relive tension with a soothing scalp
+          massage, achieve a radiant glow with Gua-Sha, and experience the
+          therapeutic benefits of Moxibustion for complete relaxation and
+          rejuvenation.
+
+      - name: Abdominal massage w. Moxibustion
+        hanyu: 腹部按摩 + 艾灸
+        duracion: 30 minutes @ $60.00
+        schedule_key: 53993179
+        descripcion: |
+          Perfect balance of relaxation and holistic well-being with our
+          abdominal massage and moxibustion combo.

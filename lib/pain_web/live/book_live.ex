@@ -6,7 +6,6 @@ defmodule PainWeb.BookLive do
 
   alias PainWeb.Components.Accion
   alias PainWeb.Components.BodyMap
-  alias PainWeb.Components.Card
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Class
   alias PainWeb.Components.Conditions
@@ -69,7 +68,7 @@ defmodule PainWeb.BookLive do
     |> update(:services, &(Map.put(&1, num, params["name"])))
     |> update(:limbs, fn limbs ->
       case service["class"] do
-        "Body and Foot Massage" ->
+        "Body Massage" ->
           Map.update(limbs, num, ["_choose"], & &1 ++ ["_choose"] |> Enum.uniq)
         _ -> limbs
       end
@@ -337,10 +336,12 @@ defmodule PainWeb.BookLive do
       #number-people .join { align-self: center; }
       .order {
         display: flex;
+        flex-direction: column;
+        margin: 4rem;
+        max-width: 60rem;
         justify-content: center;
         position: absolute;
         top: 4rem;
-        width: 100vw;
       }
       hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
@@ -360,6 +361,19 @@ defmodule PainWeb.BookLive do
       .field :deep(label) { grid-column: 2; }
       .field :deep(input) { grid-column: 3; }
       a.conditions { text-decoration: underline; }
+
+      h1 {
+        @apply p-6 font-semibold text-2xl text-brand w-full
+        place-content-center;
+        width: auto;
+      }
+      .accommodation {
+        font-style: italic;
+        max-width: 30rem;
+        border-left: 4px solid #888;
+        padding-left: 8px;
+      }
+      .accommodation a { text-decoration: underline; }
     </style>
 
     {#if System.get_env("ORDER_BYPASS")}
@@ -369,195 +383,208 @@ defmodule PainWeb.BookLive do
     {/if}
 
     <div class="order">
-      <Card rounded>
-        <:header>
-          {if @booked, do: "Your order is booked.",
-          else: "Book #{ngettext("an appointment", "appointments", @number)}"}
-        </:header>
+      <h1><a href="https://painawayofphilly.com">Pain Away of Philly</a></h1>
+      <h2>
+        {if @booked, do: "Your order is booked.",
+        else: "Book #{ngettext("an appointment", "appointments", @number)}"}
+      </h2>
 
-        {#if @booked}
+      {#if @booked}
+        <ul>
+          <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
+          <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
+        </ul>
+        <hr/>
+        {explain_services(assigns)}
+      {#else}
+      <h2>How many people are you booking for?</h2>
+
+      <quote class="accommodation">
+        We can accommodate a party up to 10 people at once. If you would
+        like to book an appointment for 5 or more people, please call us at
+        267-690-4138, or <a href="mailto:painawayphilly@gmail.com">email us</a>.
+      </quote>
+
+      <section id="number-people">
+        <div class="join">
+          <button class={"btn", "join-item", "btn-active": @number == 1}
+            phx-value-num={1} :on-click="number" >Only me</button>
+          {#for n <- [2,3,4]}
+            <button class={"btn", "join-item", "btn-active": @number == n}
+              phx-value-num={n} :on-click="number" >+{n-1}</button>
+          {/for}
+        </div>
+      </section>
+
+        {#if (map_size(@services) < @number)
+        || map_size(needing_choice(@limbs)) > 0}
+        <h2>How can we help you?</h2>
+
+        <section class="join join-vertical">
+          {#for class <- classed_services()["classes"]}
+          <Class {=class} id={class["name"]}
+            choose="choose_service" chosen={@services} {=@number}
+            is_open={@open_class == class["name"]} open="open_class" />
+          {#else}<p>Seems like an error has occurred.</p>{/for}
+        </section>
+
+        {#for {num, limbs} <- needing_choice(@limbs)}
+          <.modal id={"choose-limb-#{num}"} show>
+            <p>Customer # {num} <br/> {@services[num]}</p>
+            <h2>Please choose any areas you need help on:</h2>
+
+            <p>Once you're here, you can choose among our various massage techniques:</p>
+            <ul>
+              <li>Tui-Na Massage</li>
+              <li>Swedish Massage</li>
+              <li>Deep Tissue Massage</li>
+              <li>Scalp</li>
+              <li>Abdominal</li>
+              <li>Lymph nodes drainage </li>
+              <li>Facial </li>
+            </ul>
+
+            <button class="btn btn-primary" :on-click="done_choosing_limbs" phx-value-num={num} >
+              Done
+            </button>
+            {#if body_areas(limbs) |> length > 0}
+            <button class="btn" :on-click="clear_limbs" phx-value-num={num} >
+              Clear choices
+            </button>
+            {/if}
+
+            <BodyMap choose="choose_limb" number={num} chosen={@limbs[num] || []} />
+          </.modal>
+        {/for}
+
+        {explain_services(assigns)}
+      {#else}
+        <Accion accion="Change" click="clear_services">
+          <h2>You are booking:</h2>
+        </Accion>
+        {explain_services(assigns)}
+        <hr/>
+
+        {#if !@schedule}
+          <h2>Please schedule:</h2>
+          <Schedule id="schedule" schedule="schedule"
+            {=employee_keys()} service_keys={service_keys(@services)} />
+        {#else}
+          <Accion accion="Change" click="clear_schedule" shape="">
+            <h2>Your {ngettext("appointment is", "appointments are", @number)} going to be:</h2>
+          </Accion>
+
           <ul>
             <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
             <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
           </ul>
-          <hr/>
-          {explain_services(assigns)}
-        {#else}
-        <h2>How many people are you booking for?</h2>
 
-        <section id="number-people">
-          <div class="join">
-            <button class={"btn", "join-item", "btn-active": @number == 1}
-              phx-value-num={1} :on-click="number" >Only me</button>
-            <button class={"btn", "join-item", "btn-active": @number == 2}
-              phx-value-num={2} :on-click="number" >+1</button>
-            <button class={"btn", "join-item", "btn-active": @number == 3}
-              phx-value-num={3} :on-click="number" >+2</button>
-            <button class={"btn", "join-item", "btn-active": @number == 4}
-              phx-value-num={4} :on-click="number" >+3</button>
-          </div>
-        </section>
-
-        <hr/>
-          {#if (map_size(@services) < @number)
-          || map_size(needing_choice(@limbs)) > 0}
-          <h2>How can we help you?</h2>
-
-          {explain_services(assigns)}
-
-          <section class="join join-vertical">
-            {#for class <- classed_services()["classes"]}
-            <Class {=class} id={class["name"]}
-              choose="choose_service" chosen={@services} {=@number}
-              is_open={@open_class == class["name"]} open="open_class" />
-            {#else}<p>Seems like an error has occurred.</p>{/for}
-          </section>
-
-          {#for {num, limbs} <- needing_choice(@limbs)}
-            <.modal id={"choose-limb-#{num}"} show>
-              <p>Customer # {num} <br/> {@services[num]}</p>
-              <h2>Please choose any areas you need help on:</h2>
-
-              <button class="btn btn-primary" :on-click="done_choosing_limbs" phx-value-num={num} >
-                Done
-              </button>
-              {#if body_areas(limbs) |> length > 0}
-              <button class="btn" :on-click="clear_limbs" phx-value-num={num} >
-                Clear choices
-              </button>
-              {/if}
-
-              <BodyMap choose="choose_limb" number={num} chosen={@limbs[num] || []} />
-            </.modal>
-          {/for}
-        {#else}
-          <Accion accion="Change" click="clear_services">
-            <h2>You are booking:</h2>
-          </Accion>
-          {explain_services(assigns)}
           <hr/>
 
-          {#if !@schedule}
-            <h2>Please schedule:</h2>
-            <Schedule id="schedule" schedule="schedule"
-              {=employee_keys()} service_keys={service_keys(@services)} />
-          {#else}
-            <Accion accion="Change" click="clear_schedule" shape="">
-              <h2>Your {ngettext("appointment is", "appointments are", @number)} going to be:</h2>
+          {#if map_size(@employed) < @number}
+            <Accion accion={if @display_bios, do: "Hide bio", else: "Display bio"}
+              click="render_bios" shape={!@display_bios}>
+              <h2>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</h2>
             </Accion>
 
-            <ul>
-              <li>on {scheduled_block(@schedule) |> Calendar.strftime("%A, %m/%d, %Y")}</li>
-              <li>at {scheduled_block(@schedule) |> Calendar.strftime("%H:%M (%I:%M %P)")}</li>
-            </ul>
+            <ServiceMap {=@services} />
+
+            <Choices {=@number} choices={@employed} accion="employ" name="_any"
+              labels={@calendars |> bookable_any(@services, @employed, &(&1))}
+              enabled={@calendars |> bookable_any(@services, @employed, &(&1 > 0))}
+            ><span class="employ-generic">No preference</span></Choices>
+
+            <Choices {=@number} choices={@employed} accion="employ" name="_masc"
+              labels={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1))}
+              enabled={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1 > 0))}
+            ><span class="employ-generic">Any - masculine</span></Choices>
+
+            <Choices {=@number} choices={@employed} accion="employ" name="_fem"
+              labels={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1))}
+              enabled={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1 > 0))}
+            ><span class="employ-generic">Any - feminine</span></Choices>
+
+            {#for employee <- all_employees()}
+            <Employee {=employee} id={employee["name"]} {=@display_bios}
+              employ="employ" choices={@employed} {=@number}
+              bookable={@calendars |> employee_bookable?(employee, @services, @employed)}
+            />
+            {#else}<p>Seems like an error has occurred.</p>{/for}
+          {#else}
+            <Accion accion="Change" click="clear_employees" shape="">
+              <h2>Your therapist {ngettext("choice is", "choices are", @number)}:</h2>
+            </Accion>
+
+            <ul>{#for employee <- Map.values(@employed)}
+              <li>{#case employee}
+              {#match "_any"}No preference
+              {#match "_masc"}Any (masculine)
+              {#match "_fem"}Any (feminine)
+              {#match name}{name}
+              {/case}</li>
+            {/for}</ul>
 
             <hr/>
 
-            {#if map_size(@employed) < @number}
-              <Accion accion={if @display_bios, do: "Hide bio", else: "Display bio"}
-                click="render_bios" shape={!@display_bios}>
-                <h2>Please choose {@number} {ngettext("therapist", "therapists", @number)}:</h2>
-              </Accion>
+            <h2>Nearly done; your information is needed.</h2>
 
-              <ServiceMap {=@services} />
+            <Form for={@customer} change="customer"><div class="form">
+              <Form.Field name="name" class="field required" >
+                <Form.Label/>
+                <Form.TextInput class="input input-bordered" value={@customer["name"]} />
+              </Form.Field>
 
-              <Choices {=@number} choices={@employed} accion="employ" name="_any"
-                labels={@calendars |> bookable_any(@services, @employed, &(&1))}
-                enabled={@calendars |> bookable_any(@services, @employed, &(&1 > 0))}
-              ><span class="employ-generic">No preference</span></Choices>
+              <Form.Field name="email" class="field required">
+                <Form.Label/>
+                <Form.EmailInput class="input input-bordered" value={@customer["email"]} />
+              </Form.Field>
 
-              <Choices {=@number} choices={@employed} accion="employ" name="_masc"
-                labels={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1))}
-                enabled={@calendars |> bookable_as_gender(@services, @employed, "masculine", &(&1 > 0))}
-              ><span class="employ-generic">Any - masculine</span></Choices>
+              <Form.Field name="phone" class="field required">
+                <Form.Label/>
+                <Form.TelephoneInput class="input input-bordered" value={@customer["phone"]} />
+              </Form.Field>
 
-              <Choices {=@number} choices={@employed} accion="employ" name="_fem"
-                labels={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1))}
-                enabled={@calendars |> bookable_as_gender(@services, @employed, "feminine", &(&1 > 0))}
-              ><span class="employ-generic">Any - feminine</span></Choices>
+              <Form.Field name="reference" class="field">
+                <Form.Label>How did you hear of us?</Form.Label>
+                <Form.TextInput class="input input-bordered" value={@customer["reference"]} />
+              </Form.Field>
 
-              {#for employee <- all_employees()}
-              <Employee {=employee} id={employee["name"]} {=@display_bios}
-                employ="employ" choices={@employed} {=@number}
-                bookable={@calendars |> employee_bookable?(employee, @services, @employed)}
-              />
-              {#else}<p>Seems like an error has occurred.</p>{/for}
-            {#else}
-              <Accion accion="Change" click="clear_employees" shape="">
-                <h2>Your therapist {ngettext("choice is", "choices are", @number)}:</h2>
-              </Accion>
+              <Form.Field name="conditions" class="field required">
+                <Form.Label>
+                  I agree to the
+                  <a href="#" class="conditions"
+                    phx-click={show_modal("conditions-modal")}
+                  >conditions</a>.
+                </Form.Label>
+                <Form.Checkbox class="toggle toggle-primary" value={@customer["conditions"]} />
+              </Form.Field>
+            </div></Form>
 
-              <ul>{#for employee <- Map.values(@employed)}
-                <li>{#case employee}
-                {#match "_any"}No preference
-                {#match "_masc"}Any (masculine)
-                {#match "_fem"}Any (feminine)
-                {#match name}{name}
-                {/case}</li>
-              {/for}</ul>
+            <.modal id="conditions-modal">
+              <Conditions id="conditions-render"/>
+              <button class="btn btn-primary"
+                    phx-click={hide_modal("conditions-modal")}
+              >Done</button>
+            </.modal>
 
-              <hr/>
-
-              <h2>Nearly done; your information is needed.</h2>
-
-              <Form for={@customer} change="customer"><div class="form">
-                <Form.Field name="name" class="field required" >
-                  <Form.Label/>
-                  <Form.TextInput class="input input-bordered" value={@customer["name"]} />
-                </Form.Field>
-
-                <Form.Field name="email" class="field required">
-                  <Form.Label/>
-                  <Form.EmailInput class="input input-bordered" value={@customer["email"]} />
-                </Form.Field>
-
-                <Form.Field name="phone" class="field required">
-                  <Form.Label/>
-                  <Form.TelephoneInput class="input input-bordered" value={@customer["phone"]} />
-                </Form.Field>
-
-                <Form.Field name="reference" class="field">
-                  <Form.Label>How did you hear of us?</Form.Label>
-                  <Form.TextInput class="input input-bordered" value={@customer["reference"]} />
-                </Form.Field>
-
-                <Form.Field name="conditions" class="field required">
-                  <Form.Label>
-                    I agree to the
-                    <a href="#" class="conditions"
-                      phx-click={show_modal("conditions-modal")}
-                    >conditions</a>.
-                  </Form.Label>
-                  <Form.Checkbox class="toggle toggle-primary" value={@customer["conditions"]} />
-                </Form.Field>
-              </div></Form>
-
-              <.modal id="conditions-modal">
-                <Conditions id="conditions-render"/>
-                <button class="btn btn-primary"
-                      phx-click={hide_modal("conditions-modal")}
-                >Done</button>
-              </.modal>
-
-              {#if (@services |> chosen_services |> map_size) > 0}
-                Once your appointments have ended, you'll be charged a sum of: <br/>
-                ${sum_services(chosen_services(@services)) + sum_addons(@addons, @all_addons)}
-                (plus taxes)
-              {/if}
-
-              <Accion click="book" classes={["btn-primary"]}
-                accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
-                disabled={@customer["conditions"] == "false" || @customer
-                |> Map.take(~w[name phone email])
-                |> Map.values() |> Enum.map(&(String.length(&1) == 0)) |> Enum.any?}
-              >
-                <h2>Please proceed once you're ready.</h2>
-              </Accion>
+            {#if (@services |> chosen_services |> map_size) > 0}
+              Once your appointments have ended, you'll be charged a sum of: <br/>
+              ${sum_services(chosen_services(@services)) + sum_addons(@addons, @all_addons)}
+              (plus taxes)
             {/if}
+
+            <Accion click="book" classes={["btn-primary"]}
+              accion={"Book your #{ngettext("appointment", "appointments", @number)}"}
+              disabled={@customer["conditions"] == "false" || @customer
+              |> Map.take(~w[name phone email])
+              |> Map.values() |> Enum.map(&(String.length(&1) == 0)) |> Enum.any?}
+            >
+              <h2>Please proceed once you're ready.</h2>
+            </Accion>
           {/if}
         {/if}
-        {/if}
-      </Card>
+      {/if}
+      {/if}
     </div>
     """
   end
