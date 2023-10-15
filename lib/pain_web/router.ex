@@ -38,8 +38,8 @@ defmodule PainWeb.Router do
   scope "/", PainWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-    live "/book", BookLive
+    #get "/", PageController, :home
+    live "/", BookLive
   end
 
   # Other scopes may use custom stacks.
