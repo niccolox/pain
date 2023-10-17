@@ -1,6 +1,4 @@
 body { width: 100vw; height: auto; }
-body, .order { background: #bdd1d2; }
+body, .page { background: #bdd1d2; }
 html, body { height: 100%; min-height: 100%; width: 100%; }
-.order{
-  overflow-y: scroll;
-}
+.page { overflow-y: scroll; }
