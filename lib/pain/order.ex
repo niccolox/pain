@@ -55,12 +55,21 @@ defmodule Pain.Order do
 
   def employee_key name do
     (case name do
-      "_any" -> PainWeb.BookLive.all_employees() |> hd
+
+      "_any" ->
+        PainWeb.BookLive.all_employees()
+        # |> Enum.filter(fn e -> true end)
+        # Pain.Schedule.employee_is_bookable?(e, schedule)
+        |> Enum.random()
+
       "_" <> gender ->
         PainWeb.BookLive.all_employees()
         |> Enum.filter(&(&1["gender"] |> String.starts_with?(gender)))
-        |> hd
+        # |> Enum.filter(fn e -> true end)
+        |> Enum.random()
+
       n -> PainWeb.BookLive.all_employees() |> Enum.find(&(&1["name"] == n))
+
     end)["schedule_key"]
   end
 
@@ -69,6 +78,7 @@ defmodule Pain.Order do
       "_masc" -> "Masculine employee"
       "_fem" -> "Feminine employee"
       "_any" -> "Any employee"
+
       name -> name
     end
     locacion = case limbs do
