@@ -1,4 +1,5 @@
 employees:
+
   - name: Andy Ji
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733522.jpg?1680975248"
     biography: |
@@ -10,6 +11,7 @@ employees:
       enjoys fishing with friends.
     schedule_key: 7733522
     gender: masculine
+
   - name: Bin Wang
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-4351609.png?1672163227"
     biography: |
@@ -21,6 +23,7 @@ employees:
       experience with you, hoping to help more people get well.
     schedule_key: 4351609
     gender: feminine
+
   - name: Harry Qiao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-8178118.jpg?1680975338"
     biography: |
@@ -32,6 +35,7 @@ employees:
       steady, comfortable, and effective. In his free time, he enjoys cooking.
     schedule_key: 8178118
     gender: masculine
+
   - name: Lisa Lee
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733431.jpg?1680975387"
     biography: |
@@ -43,6 +47,7 @@ employees:
       achieve better health.
     schedule_key: 7733431
     gender: feminine
+
   - name: Lucy Gao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733550.jpg?1680975404"
     biography: |
@@ -54,6 +59,7 @@ employees:
       them to the United States.
     schedule_key: 7733550
     gender: feminine
+
   - name: Steven Zheng
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7822447.jpg?1680975439"
     biography: |
@@ -64,6 +70,7 @@ employees:
       enjoys calligraphy art.
     schedule_key: 7822447
     gender: masculine
+
   - name: Yo-Yo Liu
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7832226.jpg?1680975457"
     biography: |
@@ -74,11 +81,13 @@ employees:
       relaxed, but also alleviate pain and stress. 
     schedule_key: 7832226
     gender: feminine
+
   - name: Luke Zhu
     image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026857.jpg?1696031887
     biography: Biography coming soon.
     schedule_key: 9026857
     gender: masculine
+
   - name: Cindy Kang
     image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026847.jpg?1696031781
     biography: Biography coming soon.

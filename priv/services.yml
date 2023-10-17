@@ -165,7 +165,7 @@ classes:
           radiant glow
 
       - name: Facial Massage w. Gua-sha and Moxibustion
-        hanyu: 头皮按摩 + 刮痧 + 艾灸
+        hanyu: 面部按摩 + 刮痧 + 艾灸
         duracion: 45 minutes @ $80.00
         schedule_key: 53993130
         descripcion: |
