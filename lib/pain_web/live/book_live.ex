@@ -337,7 +337,7 @@ defmodule PainWeb.BookLive do
       .order {
         display: flex;
         flex-direction: column;
-        margin: 4rem;
+        padding: 1rem;
         max-width: 60rem;
         justify-content: center;
         position: absolute;
