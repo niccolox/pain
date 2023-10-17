@@ -335,14 +335,14 @@ defmodule PainWeb.BookLive do
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
       .order {
+        padding: 1rem;
+        padding-top: 4rem;
+        width: 100vw;
         display: flex;
         flex-direction: column;
-        padding: 1rem;
-        max-width: 60rem;
-        justify-content: center;
-        position: absolute;
-        top: 4rem;
+        align-items: center;
       }
+      .order > * { max-width: 60rem; }
       hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       ul.services li { margin-bottom: 1rem; }
