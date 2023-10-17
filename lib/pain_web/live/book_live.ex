@@ -334,15 +334,12 @@ defmodule PainWeb.BookLive do
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
-      .order {
-        padding: 1rem;
-        padding-top: 4rem;
-        width: 100vw;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      .page {
+        width: 100vw; height: 100vh;
+        padding: 1rem; padding-top: 4rem;
+        display: flex; flex-direction: column; align-items: center;
       }
-      .order > * { max-width: 60rem; }
+      .order { max-width: 60rem; }
       hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       ul.services li { margin-bottom: 1rem; }
@@ -382,7 +379,7 @@ defmodule PainWeb.BookLive do
       </Accion></div>
     {/if}
 
-    <div class="order">
+    <div class="page"><div class="order">
       <h1><a href="https://painawayofphilly.com">Pain Away of Philly</a></h1>
       <h2>
         {if @booked, do: "Your order is booked.",
@@ -399,11 +396,11 @@ defmodule PainWeb.BookLive do
       {#else}
       <h2>How many people are you booking for?</h2>
 
-      <quote class="accommodation">
+      <p class="accommodation">
         We can accommodate a party up to 10 people at once. If you would
         like to book an appointment for 5 or more people, please call us at
         267-690-4138, or <a href="mailto:painawayphilly@gmail.com">email us</a>.
-      </quote>
+      </p>
 
       <section id="number-people">
         <div class="join">
@@ -585,7 +582,7 @@ defmodule PainWeb.BookLive do
         {/if}
       {/if}
       {/if}
-    </div>
+    </div></div>
     """
   end
 
