@@ -12,19 +12,15 @@ defmodule PainWeb.Components.Page do
     ~F"""
     <style>
       main { max-width: 60rem; margin: 0 auto; padding: 2rem 1rem; }
-      #page {
+      #page { padding-bottom: 3rem;
         height: 100vh; overflow-y: scroll; background: #bdd1d2; 
-        display: flex; flex-direction: column; align-items: center;
-      }
-      #end {
-        background: #0a2923; color: #d0d0d0;
-        position: sticky; bottom: 0; left: 0; right: 0; z-index: 99;
-        display: flex; flex-direction: column; 
-      }
+        display: flex; flex-direction: column; align-items: center; }
+      #end { width: 100vw; background: #0a2923; color: #d0d0d0;
+        position: absolute; bottom: 0; left: 0; right: 0; z-index: 99;
+        display: flex; flex-direction: column; }
       #end main { padding: 0; }
-      .line {
-        display: flex; flex-direction: row; justify-content: space-between;
-        padding: 1rem 0; }
+      .line { padding: 1rem 0;
+        display: flex; flex-direction: row; justify-content: space-between; }
       @media(max-width: 1080px) { .line { flex-direction: column; } }
       a { text-decoration: underline; }
     </style>
