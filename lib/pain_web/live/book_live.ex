@@ -6,6 +6,7 @@ defmodule PainWeb.BookLive do
 
   alias PainWeb.Components.Accion
   alias PainWeb.Components.BodyMap
+  alias PainWeb.Components.Page
   alias PainWeb.Components.Choices
   alias PainWeb.Components.Class
   alias PainWeb.Components.Conditions
@@ -334,12 +335,6 @@ defmodule PainWeb.BookLive do
       section p { margin-bottom: 1rem; }
       #number-people { display: flex; flex-direction: column; }
       #number-people .join { align-self: center; }
-      .page {
-        width: 100vw; height: 100vh;
-        padding: 1rem; padding-top: 4rem;
-        display: flex; flex-direction: column; align-items: center;
-      }
-      .order { max-width: 60rem; }
       hr { margin: 0 0 2rem; }
       ul { margin-top: 1rem; margin-bottom: 1rem; padding-left: 1rem; list-style: disc; }
       ul.services li { margin-bottom: 1rem; }
@@ -379,7 +374,7 @@ defmodule PainWeb.BookLive do
       </Accion></div>
     {/if}
 
-    <div class="page"><div class="order">
+    <Page id="pain-book"><div class="order">
       <h1><a href="https://painawayofphilly.com">Pain Away of Philly</a></h1>
       <h2>
         {if @booked, do: "Your order is booked.",
@@ -582,7 +577,8 @@ defmodule PainWeb.BookLive do
         {/if}
       {/if}
       {/if}
-    </div></div>
+    </div>
+    </Page>
     """
   end
 

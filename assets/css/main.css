@@ -1,4 +1,1 @@
-body { width: 100vw; height: auto; }
-body, .page { background: #bdd1d2; }
-html, body { height: 100%; min-height: 100%; width: 100%; }
-.page { overflow-y: scroll; }
+html, body { height: 100%; width: 100%; }

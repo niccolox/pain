@@ -76,7 +76,8 @@ defmodule PainWeb.Components.Schedule do
         grid-template-columns: 1fr 1fr;
         margin: 0.5rem;
         padding: 0.5rem;
-        border: 1px solid lightgrey;
+        border: 2px solid #d0a1a1;
+        border-radius: 4px;
       }
       .hour > span { grid-column: 1; grid-row: 1 / -1; font-weight: 600; }
       .hour > .min { grid-column: 2; text-decoration: underline; cursor: pointer; }
