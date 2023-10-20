@@ -51,7 +51,7 @@ defmodule PainWeb.Components.Page do
           <div class="line">
             <a href="https://painawayofphilly.com/">Home</a>
             <a href="https://painawayofphilly.com/our-story">About</a>
-            <a href="https://painawayofphilly.com/connect">Connect</a>
+            <a href="https://painawayofphilly.com/contact">Connect</a>
             <a href="https://www.instagram.com/painawayofphilly/">Instagram</a>
             <a href="https://www.facebook.com/Pain-away-of-Philly-100684451517158/?modal=admin_todo_tour">Facebook</a>
             <a href="https://www.painawayofphilly.com/book-now">Book (Original)</a>
