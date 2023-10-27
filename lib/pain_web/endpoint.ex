@@ -4,11 +4,10 @@ defmodule PainWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie, key: "_pain_key", signing_salt: "GwUZYzuY",
-    same_site: "None", secure: true ]
+  @session_options [ store: :cookie, key: "_pain_key", signing_salt: "GwUZYzuY" ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket,
+    websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -14,7 +14,7 @@ config :pain,
 
 # Configures the endpoint
 config :pain, PainWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "0.0.0.0"],
   render_errors: [
     formats: [html: PainWeb.ErrorHTML, json: PainWeb.ErrorJSON],
     layout: false

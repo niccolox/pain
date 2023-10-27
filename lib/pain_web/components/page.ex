@@ -12,21 +12,29 @@ defmodule PainWeb.Components.Page do
     ~F"""
     <style>
       main { max-width: 60rem; margin: 0 auto; padding: 2rem 1rem; }
-      #page { padding-bottom: 3rem;
-        height: 100vh; overflow-y: scroll; background: #bdd1d2; 
+      #screen { height: 100vh; width: 100vw; background: #bdd1d2;
+      display: grid; grid-template-rows: auto 1fr; grid-gap: 2rem; }
+
+      #page { height: auto; overflow-y: scroll;
         display: flex; flex-direction: column; align-items: center; }
+
       #end { width: 100vw; background: #0a2923; color: #d0d0d0;
-        position: absolute; bottom: 0; left: 0; right: 0; z-index: 99;
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
         display: flex; flex-direction: column; }
+
       #end main { padding: 0; }
+
       .line { padding: 1rem 0;
         display: flex; flex-direction: row; justify-content: space-between; }
       @media(max-width: 1080px) { .line { flex-direction: column; } }
+
       a { text-decoration: underline; }
     </style>
 
-    <div id="page">
-      <main><#slot/></main>
+    <div id="screen">
+      <div id="page">
+        <main><#slot/></main>
+      </div>
 
       <div id="end">
         <main class={"collapse", "collapse-arrow", "border-neutral"} >
