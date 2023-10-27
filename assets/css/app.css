@@ -5,6 +5,5 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@import "flatpickr/dist/flatpickr.min.css"
-
 @import "./main.css";
+@import "flatpickr/dist/flatpickr.min.css"
