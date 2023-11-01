@@ -38,6 +38,7 @@ defmodule Pain.Order do
         phone: order[:customer]["phone"],
         notes: compile_remarks(order[:employed][n], order[:limbs][n]),
         addonIDs: addons[n],
+        smsOptIn: true,
       }
       body = case employee_key(order[:employed][n]) do
         nil -> body

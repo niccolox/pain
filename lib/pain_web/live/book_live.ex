@@ -204,7 +204,8 @@ defmodule PainWeb.BookLive do
       |> Application.app_dir("priv")
       |> Path.join("employees.yml")
       |> YamlElixir.read_from_file
-    ); e["employees"]
+    );
+    e["employees"] |> Enum.filter(fn e -> e["enabled"] != false end)
   end
 
   def chosen_services(services) do

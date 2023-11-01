@@ -23,6 +23,7 @@ employees:
       experience with you, hoping to help more people get well.
     schedule_key: 4351609
     gender: feminine
+    enabled: false
 
   - name: Harry Qiao
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-8178118.jpg?1680975338"
@@ -35,8 +36,9 @@ employees:
       steady, comfortable, and effective. In his free time, he enjoys cooking.
     schedule_key: 8178118
     gender: masculine
+    enabled: false
 
-  - name: Lisa Lee
+  - name: Lisa Li
     image: "https://cdn-s.acuityscheduling.com/calendar-thumb-7733431.jpg?1680975387"
     biography: |
       Lisa specializes in Tui Na massage and reflexology, with over ten years
@@ -84,12 +86,19 @@ employees:
 
   - name: Luke Zhu
     image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026857.jpg?1696031887
-    biography: Biography coming soon.
+    biography: |
+      Luke graduated from Liaoning Chinese Medicine School,
+      worked at Dalian Shengu Chinese Hospital for 7 years,
+      and has 22 years of clinical experience.
+      He is expertise in frozen shoulder, sciatica, and lumbar disc herniation
+      with his strong and deep finger technique.
     schedule_key: 9026857
     gender: masculine
 
   - name: Cindy Kang
     image: https://cdn-s.acuityscheduling.com/calendar-thumb-9026847.jpg?1696031781
-    biography: Biography coming soon.
+    biography: |
+      Cindy started to learn Chinese medicine when she was a child.
+      She has years of experience with meridian and acupoint Tui-na massage.
     schedule_key: 9026847
     gender: feminine
