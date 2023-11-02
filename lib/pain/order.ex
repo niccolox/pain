@@ -82,19 +82,24 @@ defmodule Pain.Order do
 
       name -> name
     end
-    locacion = case limbs do
-      nil -> nil
-      [] -> nil
-      l -> Enum.map(l, fn limb ->
-          case limb do
-            nil -> nil
-            "" -> nil
-            "_choose" -> nil
-            place -> "Body location: " <> place
-          end
-      end) |> Enum.join("\n")
-    end
 
-    [employee, locacion] |> Enum.filter(& !is_nil(&1)) |> Enum.join("\n\n")
+    [employee, describe_limbs(limbs)]
+    |> Enum.filter(& &1) |> Enum.join("\n\n")
   end
+
+  defp describe_limbs(nil), do: nil
+  defp describe_limbs([]), do: nil
+  defp describe_limbs([limb]), do: "Body location: " <> limb
+  defp describe_limbs(limbs) do
+    (["Body locations:"] ++
+      Enum.map(limbs, fn limb -> case limb do
+        nil -> nil
+        "" -> nil
+        "_choose" -> nil
+        place -> "- #{place}"
+      end end))
+      |> Enum.filter(& &1)
+      |> Enum.join("\n")
+  end
+
 end
