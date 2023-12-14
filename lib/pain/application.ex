@@ -11,7 +11,7 @@ defmodule Pain.Application do
       # Start the Telemetry supervisor
       PainWeb.Telemetry,
       # Start the Ecto repository
-      Pain.Repo,
+      # Pain.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Pain.PubSub},
       # Start Finch

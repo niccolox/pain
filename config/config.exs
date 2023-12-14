@@ -10,7 +10,7 @@ import Config
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :pain,
-  ecto_repos: [Pain.Repo]
+  ecto_repos: [] #Pain.Repo]
 
 # Configures the endpoint
 config :pain, PainWeb.Endpoint,
